@@ -1,0 +1,62 @@
+// This is the Prisma schema file for the pageant system
+// Update the datasource url in your .env file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Event {
+  id          Int          @id @default(autoincrement())
+  name        String
+  date        DateTime
+  contestants Contestant[]
+  judges      Judge[]
+  criteria    Criteria[]
+  scores      Score[]
+}
+
+model Contestant {
+  id      Int    @id @default(autoincrement())
+  name    String
+  event   Event  @relation(fields: [eventId], references: [id])
+  eventId Int
+  scores  Score[]
+}
+
+model Judge {
+  id      Int    @id @default(autoincrement())
+  name    String
+  event   Event  @relation(fields: [eventId], references: [id])
+  eventId Int
+  scores  Score[]
+  // Add authentication fields as needed
+  username String @unique
+  password String
+}
+
+model Criteria {
+  id      Int    @id @default(autoincrement())
+  name    String
+  weight  Float
+  event   Event  @relation(fields: [eventId], references: [id])
+  eventId Int
+  scores  Score[]
+}
+
+model Score {
+  id           Int       @id @default(autoincrement())
+  value        Float
+  judge        Judge     @relation(fields: [judgeId], references: [id])
+  judgeId      Int
+  contestant   Contestant @relation(fields: [contestantId], references: [id])
+  contestantId Int
+  criteria     Criteria  @relation(fields: [criteriaId], references: [id])
+  criteriaId   Int
+  event        Event     @relation(fields: [eventId], references: [id])
+  eventId      Int
+}
