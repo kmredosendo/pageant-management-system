@@ -5,8 +5,8 @@ import { User, Settings, ListChecks, Users, ClipboardList, BarChart } from "luci
 
 export default function AdminDashboard() {
   return (
-    <div className="min-h-screen bg-muted flex flex-col items-center py-10">
-      <Card className="w-full max-w-2xl">
+    <div className="min-h-screen bg-muted flex flex-col items-center py-10 px-2 sm:px-4">
+      <Card className="w-full max-w-2xl mx-auto">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Settings className="w-5 h-5" /> Admin Dashboard

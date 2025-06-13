@@ -28,8 +28,8 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted">
-      <Card className="w-full max-w-sm">
+    <div className="flex min-h-screen items-center justify-center bg-muted px-2 sm:px-4">
+      <Card className="w-full max-w-sm mx-auto">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Lock className="w-5 h-5" /> Admin Login

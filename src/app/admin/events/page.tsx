@@ -125,9 +125,9 @@ export default function EventsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-muted flex flex-col items-center py-10">
+    <div className="min-h-screen bg-muted flex flex-col items-center py-10 px-2 sm:px-4">
       {/* Main Events Card */}
-      <Card className="w-full max-w-2xl">
+      <Card className="w-full max-w-2xl mx-auto">
         <CardHeader className="flex flex-col gap-2 items-stretch">
           <AdminNav />
           <hr className="my-2" />
