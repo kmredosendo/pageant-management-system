@@ -23,7 +23,7 @@ model Event {
 model Contestant {
   id      Int    @id @default(autoincrement())
   name    String
-  event   Event  @relation(fields: [eventId], references: [id])
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId Int
   scores  Score[]
 }
@@ -31,7 +31,7 @@ model Contestant {
 model Judge {
   id      Int    @id @default(autoincrement())
   name    String
-  event   Event  @relation(fields: [eventId], references: [id])
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId Int
   scores  Score[]
   // Add authentication fields as needed
@@ -43,7 +43,7 @@ model Criteria {
   id      Int    @id @default(autoincrement())
   name    String
   weight  Float
-  event   Event  @relation(fields: [eventId], references: [id])
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId Int
   scores  Score[]
 }
@@ -51,11 +51,11 @@ model Criteria {
 model Score {
   id           Int       @id @default(autoincrement())
   value        Float
-  judge        Judge     @relation(fields: [judgeId], references: [id])
-  judgeId      Int
-  contestant   Contestant @relation(fields: [contestantId], references: [id])
+  contestant   Contestant @relation(fields: [contestantId], references: [id], onDelete: Cascade)
   contestantId Int
-  criteria     Criteria  @relation(fields: [criteriaId], references: [id])
+  judge        Judge     @relation(fields: [judgeId], references: [id], onDelete: Cascade)
+  judgeId      Int
+  criteria     Criteria  @relation(fields: [criteriaId], references: [id], onDelete: Cascade)
   criteriaId   Int
   event        Event     @relation(fields: [eventId], references: [id])
   eventId      Int
