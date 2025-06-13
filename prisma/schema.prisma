@@ -60,3 +60,11 @@ model Score {
   event        Event     @relation(fields: [eventId], references: [id])
   eventId      Int
 }
+
+model Admin {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  password String
+  name     String
+  // Add more fields as needed
+}
