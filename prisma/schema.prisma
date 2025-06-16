@@ -53,6 +53,7 @@ model Judge {
 model Criteria {
   id         Int        @id @default(autoincrement())
   name       String
+  identifier String?   @unique // Unique identifier for programmatic use (e.g. 'best-in-talent')
   weight     Float?
   event      Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId    Int

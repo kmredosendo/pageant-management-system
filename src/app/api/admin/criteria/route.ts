@@ -17,7 +17,8 @@ export async function GET() {
     },
     orderBy: { id: "asc" },
   });
-  return NextResponse.json(mainCriterias);
+  // Ensure identifier is included in the response
+  return NextResponse.json(mainCriterias.map(c => ({ ...c, identifier: c.identifier })));
 }
 
 // POST: Create a main or sub-criteria
@@ -27,13 +28,14 @@ export async function POST(req: NextRequest) {
   const event = await prisma.event.findFirst({ where: { status: "ACTIVE" }, orderBy: { date: "desc" } });
   if (!event) return NextResponse.json({ error: "No active event" }, { status: 400 });
 
-  const { name, weight, parentId, autoAssignToAllContestants } = body;
+  const { name, identifier, weight, parentId, autoAssignToAllContestants } = body;
   if (!name) return NextResponse.json({ error: "Name is required" }, { status: 400 });
 
   // If parentId is set, it's a sub-criteria
   const criteria = await prisma.criteria.create({
     data: {
       name,
+      identifier: parentId ? undefined : identifier || null,
       weight: parentId ? Number(weight) : null,
       eventId: event.id,
       parentId: parentId ?? null,
@@ -45,9 +47,10 @@ export async function POST(req: NextRequest) {
 
 // PUT: Update a criteria (main or sub)
 export async function PUT(req: NextRequest) {
-  const { id, name, weight, autoAssignToAllContestants } = await req.json();
+  const { id, name, identifier, weight, autoAssignToAllContestants } = await req.json();
   if (!id) return NextResponse.json({ error: "ID is required" }, { status: 400 });
-  const data: Partial<{ name: string; weight: number; autoAssignToAllContestants: boolean }> = { name };
+  const data: Partial<{ name: string; identifier?: string; weight: number; autoAssignToAllContestants: boolean }> = { name };
+  if (identifier !== undefined) data.identifier = identifier;
   if (weight !== undefined) data.weight = Number(weight);
   if (autoAssignToAllContestants !== undefined) data.autoAssignToAllContestants = !!autoAssignToAllContestants;
   const updated = await prisma.criteria.update({ where: { id }, data });

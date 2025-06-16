@@ -9,6 +9,14 @@ import { AdminNav } from "@/components/admin-nav";
 import { ActiveEventLabel } from "@/components/active-event-label";
 import { Edit, Trash2, ListChecks, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
+
+const COMMON_IDENTIFIERS = [
+  { value: "best-in-talent", label: "Best in Talent" },
+  { value: "best-in-interview", label: "Best in Interview" },
+  { value: "best-in-gown", label: "Best in Gown" },
+  { value: "best-in-swimsuit", label: "Best in Swimsuit" },
+];
 
 type SubCriteria = {
   id: number;
@@ -20,6 +28,7 @@ type SubCriteria = {
 type MainCriteria = {
   id: number;
   name: string;
+  identifier?: string;
   subCriterias: SubCriteria[];
 };
 
@@ -28,6 +37,7 @@ export default function CriteriaPage() {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [newMainName, setNewMainName] = useState("");
+  const [newMainIdentifier, setNewMainIdentifier] = useState("");
   const [formError, setFormError] = useState("");
 
   // Sub-criteria dialog state
@@ -40,6 +50,7 @@ export default function CriteriaPage() {
   // Edit/delete dialog state
   const [editMainId, setEditMainId] = useState<number | null>(null);
   const [editMainName, setEditMainName] = useState("");
+  const [editMainIdentifier, setEditMainIdentifier] = useState("");
   const [editMainError, setEditMainError] = useState("");
   const [deleteMainId, setDeleteMainId] = useState<number | null>(null);
   const [editSubId, setEditSubId] = useState<number | null>(null);
@@ -54,6 +65,11 @@ export default function CriteriaPage() {
       .then(data => {
         setCriterias(data);
         setLoading(false);
+      })
+      .catch(() => {
+        setCriterias([]);
+        setLoading(false);
+        toast.error("Failed to load criteria. Please try again.");
       });
   }, []);
 
@@ -63,11 +79,12 @@ export default function CriteriaPage() {
     const res = await fetch("/api/admin/criteria", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: newMainName }),
+      body: JSON.stringify({ name: newMainName, identifier: newMainIdentifier }),
     });
     if (res.ok) {
       setOpen(false);
       setNewMainName("");
+      setNewMainIdentifier("");
       setFormError("");
       fetch("/api/admin/criteria")
         .then(res => res.json())
@@ -106,6 +123,7 @@ export default function CriteriaPage() {
   const openEditMain = (main: MainCriteria) => {
     setEditMainId(main.id);
     setEditMainName(main.name);
+    setEditMainIdentifier(main.identifier || "");
     setEditMainError("");
   };
   const handleEditMain = async (e: React.FormEvent) => {
@@ -115,11 +133,12 @@ export default function CriteriaPage() {
     const res = await fetch("/api/admin/criteria", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: editMainId, name: editMainName }),
+      body: JSON.stringify({ id: editMainId, name: editMainName, identifier: editMainIdentifier }),
     });
     if (res.ok) {
       setEditMainId(null);
       setEditMainName("");
+      setEditMainIdentifier("");
       setEditMainError("");
       fetch("/api/admin/criteria").then(res => res.json()).then(data => setCriterias(data));
       toast.success("Main criteria updated successfully.");
@@ -208,6 +227,28 @@ export default function CriteriaPage() {
                       required
                     />
                   </div>
+                  <div>
+                    <Select value={newMainIdentifier} onValueChange={setNewMainIdentifier}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Identifier (e.g. best-in-talent)" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {COMMON_IDENTIFIERS.map(opt => (
+                          <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      className="mt-2"
+                      placeholder="Or enter custom identifier"
+                      value={newMainIdentifier}
+                      onChange={e => setNewMainIdentifier(e.target.value)}
+                      pattern="[a-zA-Z0-9\-]+"
+                      minLength={3}
+                      maxLength={32}
+                    />
+                    <div className="text-xs text-muted-foreground mt-1">Optional, unique. Used for results computation.</div>
+                  </div>
                   {formError && <div className="text-destructive text-sm">{formError}</div>}
                   <div className="flex gap-2 justify-end">
                     <DialogClose asChild>
@@ -232,7 +273,7 @@ export default function CriteriaPage() {
                 return (
                   <li key={main.id} className="bg-background rounded-md p-4 shadow-sm">
                     <div className="font-semibold flex items-center justify-between">
-                      <span>{main.name} {totalWeight > 0 && <span className="text-xs text-muted-foreground">({totalWeight}%)</span>}</span>
+                      <span>{main.name} {totalWeight > 0 && <span className="text-xs text-muted-foreground">({totalWeight}%)</span>} {main.identifier && <span className="text-xs text-muted-foreground">({main.identifier})</span>}</span>
                       <div className="flex gap-2">
                         <Button size="sm" variant="outline" onClick={() => openEditMain(main)}><Edit className="w-4 h-4" /></Button>
                         <Button size="sm" variant="destructive" onClick={() => setDeleteMainId(main.id)}><Trash2 className="w-4 h-4" /></Button>
@@ -314,6 +355,28 @@ export default function CriteriaPage() {
                               onChange={e => setEditMainName(e.target.value)}
                               required
                             />
+                          </div>
+                          <div>
+                            <Select value={editMainIdentifier} onValueChange={setEditMainIdentifier}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Identifier (e.g. best-in-talent)" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {COMMON_IDENTIFIERS.map(opt => (
+                                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <Input
+                              className="mt-2"
+                              placeholder="Or enter custom identifier"
+                              value={editMainIdentifier}
+                              onChange={e => setEditMainIdentifier(e.target.value)}
+                              pattern="[a-zA-Z0-9\-]+"
+                              minLength={3}
+                              maxLength={32}
+                            />
+                            <div className="text-xs text-muted-foreground mt-1">Optional, unique. Used for results computation.</div>
                           </div>
                           {editMainError && <div className="text-destructive text-sm">{editMainError}</div>}
                           <div className="flex gap-2 justify-end">
