@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { AdminNav } from "@/components/admin-nav";
 import { ActiveEventLabel } from "@/components/active-event-label";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, ListChecks, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 type SubCriteria = {
@@ -186,11 +186,14 @@ export default function CriteriaPage() {
           <hr className="my-2" />
           <div className="flex items-center justify-between w-full">
             <CardTitle className="flex items-center gap-2">
+              <ListChecks className="w-5 h-5 text-primary" />
               Criteria
             </CardTitle>
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <Button variant="default">New Main Criteria</Button>
+                <Button variant="default">
+                  <Plus className="w-4 h-4 mr-2" /> New Main Criteria
+                </Button>
               </DialogTrigger>
               <DialogContent className="max-w-md w-full">
                 <DialogHeader>
@@ -250,7 +253,9 @@ export default function CriteriaPage() {
                     )}
                     <Dialog open={subDialogOpen === main.id} onOpenChange={open => setSubDialogOpen(open ? main.id : null)}>
                       <DialogTrigger asChild>
-                        <Button variant="outline" className="mt-2">Add Sub-Criteria</Button>
+                        <Button variant="outline" className="mt-2">
+                          <Plus className="w-4 h-4 mr-2" /> Add Sub-Criteria
+                        </Button>
                       </DialogTrigger>
                       <DialogContent className="max-w-md w-full">
                         <DialogHeader>

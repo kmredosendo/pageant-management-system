@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { AdminNav } from "@/components/admin-nav";
-import { UserPlus, Edit, Trash2 } from "lucide-react";
+import { Users, Edit, Trash2, Plus } from "lucide-react";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { ActiveEventLabel } from "@/components/active-event-label";
 import { toast } from "sonner";
@@ -150,12 +150,12 @@ export default function ContestantsPage() {
           <hr className="my-2" />
           <div className="flex items-center justify-between w-full">
             <CardTitle className="flex items-center gap-2">
-              <UserPlus className="w-5 h-5" /> Contestants
+              <Users className="w-5 h-5" /> Contestants
             </CardTitle>
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
                 <Button variant="default">
-                  <UserPlus className="w-4 h-4 mr-2" /> New Contestant
+                  <Plus className="w-4 h-4 mr-2" /> New Contestant
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-md w-full">

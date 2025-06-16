@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ClipboardList, Edit, Trash2, Plus } from "lucide-react";
+import { Trophy, Edit, Trash2, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -144,7 +144,7 @@ export default function EventsPage() {
           <hr className="my-2" />
           <div className="flex items-center justify-between w-full">
             <CardTitle className="flex items-center gap-2">
-              <ClipboardList className="w-5 h-5" /> Events
+              <Trophy className="w-5 h-5" /> Events
             </CardTitle>
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>

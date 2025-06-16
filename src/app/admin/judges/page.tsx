@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { AdminNav } from "@/components/admin-nav";
 import { ActiveEventLabel } from "@/components/active-event-label";
-import { UserPlus, Edit, Trash2 } from "lucide-react";
+import { UserCheck, Edit, Trash2, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 type Judge = {
@@ -126,12 +126,12 @@ export default function JudgesPage() {
           <hr className="my-2" />
           <div className="flex items-center justify-between w-full">
             <CardTitle className="flex items-center gap-2">
-              <UserPlus className="w-4 h-4" /> Judges
+              <UserCheck className="w-4 h-4" /> Judges
             </CardTitle>
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
                 <Button variant="default">
-                  <UserPlus className="w-4 h-4 mr-2" /> New Judge
+                  <Plus className="w-4 h-4 mr-2" /> New Judge
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-md w-full">
