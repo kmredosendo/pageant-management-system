@@ -14,15 +14,28 @@ model Event {
   id          Int          @id @default(autoincrement())
   name        String
   date        DateTime
+  status      EventStatus @default(ACTIVE)
   contestants Contestant[]
   judges      Judge[]
   criteria    Criteria[]
   scores      Score[]
 }
 
+enum EventStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum Sex {
+  MALE
+  FEMALE
+}
+
 model Contestant {
   id      Int    @id @default(autoincrement())
+  number  Int
   name    String
+  sex     Sex?
   event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId Int
   scores  Score[]
@@ -30,22 +43,24 @@ model Contestant {
 
 model Judge {
   id      Int    @id @default(autoincrement())
+  number  Int
   name    String
   event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId Int
   scores  Score[]
-  // Add authentication fields as needed
-  username String @unique
-  password String
 }
 
 model Criteria {
-  id      Int    @id @default(autoincrement())
-  name    String
-  weight  Float
-  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  eventId Int
-  scores  Score[]
+  id         Int        @id @default(autoincrement())
+  name       String
+  weight     Float?
+  event      Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId    Int
+  parentId   Int?       // null for main criteria, set for sub-criteria
+  parent     Criteria?  @relation("SubCriteria", fields: [parentId], references: [id])
+  subCriterias Criteria[] @relation("SubCriteria")
+  autoAssignToAllContestants Boolean @default(false)
+  scores     Score[]
 }
 
 model Score {
