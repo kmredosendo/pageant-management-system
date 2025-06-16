@@ -1,5 +1,7 @@
 "use client";
 
+import "../score-shake.css";
+
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Card } from "@/components/ui/card";
@@ -93,10 +95,30 @@ export default function JudgeScorePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contestants, criteria]);
 
-  const handleScoreChange = (contestantId: number, subCriteriaId: number, value: string) => {
-    setScores(prev => ({ ...prev, [`${contestantId}_${subCriteriaId}`]: value }));
-  };
+  // Local storage key for autosave
+  const localStorageKey = event && judge ? `score-autosave-event-${event.id}-judge-${judge.id}` : null;
 
+  // Load autosaved scores from localStorage on mount or when event/judge changes
+  useEffect(() => {
+    if (!localStorageKey) return;
+    const saved = localStorage.getItem(localStorageKey);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed === "object") {
+          setScores(prev => ({ ...prev, ...parsed }));
+        }
+      } catch {}
+    }
+  }, [localStorageKey]);
+
+  // Autosave scores to localStorage whenever they change
+  useEffect(() => {
+    if (!localStorageKey) return;
+    localStorage.setItem(localStorageKey, JSON.stringify(scores));
+  }, [scores, localStorageKey]);
+
+  // Clear autosave on successful submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const payload: { contestantId: number; subCriteriaId: number; value: number }[] = [];
@@ -126,6 +148,7 @@ export default function JudgeScorePage() {
       }),
     });
     if (res.ok) {
+      if (localStorageKey) localStorage.removeItem(localStorageKey);
       toast.success("Scores submitted!");
     } else {
       toast.error("Failed to submit scores");
@@ -146,6 +169,11 @@ export default function JudgeScorePage() {
     subCriterias: main.subCriterias,
   }));
 
+  // Add back handleScoreChange for input fields
+  const handleScoreChange = (contestantId: number, subCriteriaId: number, value: string) => {
+    setScores(prev => ({ ...prev, [`${contestantId}_${subCriteriaId}`]: value }));
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-primary/10 to-background p-4">
       <Card className="w-full max-w-7xl mx-auto p-4 sm:p-8 flex flex-col gap-8 shadow-xl overflow-x-auto">
@@ -153,30 +181,45 @@ export default function JudgeScorePage() {
           {event.name}
         </h1>
         <form onSubmit={handleSubmit} className="flex flex-col gap-8">
-          <table className="min-w-full border-collapse">
+          <table className="min-w-full border-separate" style={{ borderSpacing: 0 }}>
             <thead>
               <tr>
-                <th className="border-b p-2 text-left align-bottom">Contestant #</th>
-                {mainGroups.map(main => (
-                  <th key={main.id} colSpan={main.subCriterias.length} className="border-b p-2 text-center align-bottom">
+                <th className="border-b-2 border-muted p-2 text-center align-bottom" rowSpan={2}>Contestant #</th>
+                {mainGroups.map((main, mainIdx) => (
+                  <th
+                    key={main.id}
+                    colSpan={main.subCriterias.length}
+                    className={[
+                      "border-b-2 border-muted p-2 text-center align-bottom",
+                      mainIdx === 0 ? "border-l-2 border-muted" : "",
+                      mainIdx === mainGroups.length - 1 ? "border-r-2 border-muted" : "",
+                      mainIdx !== 0 ? "border-l-2 border-muted" : ""
+                    ].join(" ")}
+                  >
                     <div className="font-semibold">{main.name}</div>
                     <div className="text-xs text-muted-foreground">({main.totalWeight}%)</div>
                   </th>
                 ))}
-                <th className="border-b p-2 text-center align-bottom">Total Score</th>
+                <th className="border-b-2 border-l-2 border-muted p-2 text-center align-bottom" rowSpan={2}>Total Score</th>
               </tr>
               <tr>
-                <th className="border-b p-2"></th>
-                {mainGroups.map(main => (
-                  main.subCriterias.map(sub => (
-                    <th key={sub.id} className="border-b p-2 text-center font-normal">
+                {mainGroups.map((main, mainIdx) => (
+                  main.subCriterias.map((sub, subIdx) => (
+                    <th
+                      key={sub.id}
+                      className={[
+                        "border-b-2 border-muted p-2 text-center font-normal",
+                        (mainIdx === 0 && subIdx === 0) ? "border-l-2 border-muted" : "",
+                        (mainIdx === mainGroups.length - 1 && subIdx === main.subCriterias.length - 1) ? "border-r-2 border-muted" : "",
+                        mainIdx !== 0 && subIdx === 0 ? "border-l-2 border-muted" : ""
+                      ].join(" ")}
+                    >
                       {sub.name}<br />
                       <span className="text-xs text-muted-foreground">({sub.weight}%)</span>
                       {sub.autoAssignToAllContestants && <span className="text-xs text-primary"> (Auto)</span>}
                     </th>
                   ))
                 ))}
-                <th className="border-b p-2"></th>
               </tr>
             </thead>
             <tbody>
@@ -191,10 +234,18 @@ export default function JudgeScorePage() {
                 });
                 return (
                   <tr key={contestant.id}>
-                    <td className="border-b p-1 font-mono whitespace-nowrap text-xs">#{contestant.number}</td>
-                    {mainGroups.map(main => (
-                      main.subCriterias.map(sub => (
-                        <td key={sub.id} className="border-b p-1 text-center">
+                    <td className="border-b-2 border-muted p-1 font-mono whitespace-nowrap text-xs text-center">#{contestant.number}</td>
+                    {mainGroups.map((main, mainIdx) => (
+                      main.subCriterias.map((sub, subIdx) => (
+                        <td
+                          key={sub.id}
+                          className={[
+                            "border-b-2 border-muted p-1 text-center",
+                            (mainIdx === 0 && subIdx === 0) ? "border-l-2 border-muted" : "",
+                            (mainIdx === mainGroups.length - 1 && subIdx === main.subCriterias.length - 1) ? "border-r-2 border-muted" : "",
+                            mainIdx !== 0 && subIdx === 0 ? "border-l-2 border-muted" : ""
+                          ].join(" ")}
+                        >
                           <Input
                             type="number"
                             min={0}
@@ -203,8 +254,15 @@ export default function JudgeScorePage() {
                             className="w-full h-8 px-1 py-0 text-xs text-center"
                             value={scores[`${contestant.id}_${sub.id}`] || ""}
                             onChange={e => {
-                              let v = e.target.value;
-                              if (v && parseFloat(v) > sub.weight) v = sub.weight.toString();
+                              const v = e.target.value;
+                              if (v && parseFloat(v) > sub.weight) {
+                                handleScoreChange(contestant.id, sub.id, "");
+                                e.target.classList.add("animate-shake");
+                                setTimeout(() => {
+                                  e.target.classList.remove("animate-shake");
+                                }, 1200);
+                                return;
+                              }
                               handleScoreChange(contestant.id, sub.id, v);
                             }}
                             required={!sub.autoAssignToAllContestants}
@@ -213,7 +271,7 @@ export default function JudgeScorePage() {
                         </td>
                       ))
                     ))}
-                    <td className="border-b p-1 text-center font-bold text-xs">{total.toFixed(2)}</td>
+                    <td className="border-b-2 border-l-2 border-muted p-1 text-center font-bold text-xs">{total.toFixed(2)}</td>
                   </tr>
                 );
               })}
