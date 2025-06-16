@@ -2,12 +2,17 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { User, Settings, ListChecks, Users, ClipboardList, BarChart } from "lucide-react";
+import { ActiveEventLabel } from "@/components/active-event-label";
+import { AdminNav } from "@/components/admin-nav";
 
 export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-muted flex flex-col items-center py-10 px-2 sm:px-4">
       <Card className="w-full max-w-2xl mx-auto">
         <CardHeader>
+          <AdminNav />
+          <ActiveEventLabel />
+          <hr className="my-2" />
           <CardTitle className="flex items-center gap-2">
             <Settings className="w-5 h-5" /> Admin Dashboard
           </CardTitle>
