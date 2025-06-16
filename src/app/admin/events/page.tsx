@@ -7,11 +7,15 @@ import { useEffect, useState } from "react";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { AdminNav } from "@/components/admin-nav";
+import { Switch } from "@/components/ui/switch";
+import { ActiveEventLabel } from "@/components/active-event-label";
+import { toast } from "sonner";
 
 type Event = {
   id: number;
   name: string;
   date: string;
+  status: "ACTIVE" | "INACTIVE";
 };
 
 export default function EventsPage() {
@@ -55,12 +59,14 @@ export default function EventsPage() {
       setNewEventName("");
       setNewEventDate("");
       setFormError("");
+      toast.success('Event created successfully');
       // Refresh events
       fetch("/api/admin/events")
         .then(res => res.json())
         .then(data => setEvents(data));
     } else {
       setFormError("Failed to create event");
+      toast.error('Failed to create event');
     }
   };
 
@@ -84,12 +90,14 @@ export default function EventsPage() {
     if (res.ok) {
       setEditDialogOpen(false);
       setEditEvent(null);
+      toast.success('Event updated successfully');
       // Refresh events
       fetch("/api/admin/events")
         .then(res => res.json())
         .then(data => setEvents(data));
     } else {
       setEditFormError("Failed to update event");
+      toast.error('Failed to update event');
     }
   };
 
@@ -115,11 +123,13 @@ export default function EventsPage() {
       setEventToDelete(null);
       setDeleteConfirmInput("");
       setDeleteError("");
+      toast.success('Event deleted successfully');
     } else {
       setDeleteDialogOpen(false);
       setEventToDelete(null);
       setDeleteConfirmInput("");
       setDeleteError("");
+      toast.error('Failed to delete event');
       // Optionally show error toast or message
     }
   };
@@ -130,6 +140,7 @@ export default function EventsPage() {
       <Card className="w-full max-w-2xl mx-auto">
         <CardHeader className="flex flex-col gap-2 items-stretch">
           <AdminNav />
+          <ActiveEventLabel />
           <hr className="my-2" />
           <div className="flex items-center justify-between w-full">
             <CardTitle className="flex items-center gap-2">
@@ -188,14 +199,30 @@ export default function EventsPage() {
                     <div>
                       <div className="font-semibold">{event.name}</div>
                       <div className="text-xs text-muted-foreground">{new Date(event.date).toLocaleDateString()}</div>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Switch
+                          checked={event.status === "ACTIVE"}
+                          onCheckedChange={async (checked) => {
+                            await fetch(`/api/admin/events/${event.id}`, {
+                              method: "PUT",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({
+                                name: event.name,
+                                date: event.date,
+                                status: checked ? "ACTIVE" : "INACTIVE"
+                              })
+                            });
+                            fetch("/api/admin/events")
+                              .then(res => res.json())
+                              .then(data => setEvents(data));
+                          }}
+                        />
+                        <span className="text-xs">{event.status === "ACTIVE" ? "Active" : "Inactive"}</span>
+                      </div>
                     </div>
                     <div className="flex gap-2">
-                      <Button variant="outline" onClick={() => openEditDialog(event)} className="flex items-center gap-1">
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button variant="destructive" onClick={() => handleDeleteClick(event)}>
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      <Button variant="outline" onClick={() => openEditDialog(event)} className="flex items-center gap-1" size="sm"><Edit className="w-4 h-4" /></Button>
+                      <Button variant="destructive" onClick={() => handleDeleteClick(event)} size="sm"><Trash2 className="w-4 h-4" /></Button>
                     </div>
                   </li>
                 ))}

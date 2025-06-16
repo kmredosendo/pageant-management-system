@@ -4,7 +4,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export async function PUT(req: NextRequest, context: { params: Promise<Record<string, string>> }) {
-  const { name, date } = await req.json();
+  const { name, date, status } = await req.json();
   const params = await context.params;
   const id = Number(params.id);
   if (!name || !date || !id) {
@@ -12,7 +12,7 @@ export async function PUT(req: NextRequest, context: { params: Promise<Record<st
   }
   const event = await prisma.event.update({
     where: { id },
-    data: { name, date: new Date(date) },
+    data: { name, date: new Date(date), ...(status && { status }) },
   });
   return NextResponse.json(event);
 }
