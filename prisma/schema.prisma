@@ -48,6 +48,7 @@ model Judge {
   event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId Int
   scores  Score[]
+  locked  Boolean @default(false)
 }
 
 model Criteria {
