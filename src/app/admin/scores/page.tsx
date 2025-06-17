@@ -69,14 +69,21 @@ export default function AdminScoresPage() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="text-center text-muted-foreground">Loading judges...</div>
+            <div className="text-center text-muted-foreground py-10">Loading...</div>
+          ) : judges.length === 0 ? (
+            <div className="text-center text-muted-foreground py-10">No judges found.</div>
           ) : (
-            <div className="flex flex-col gap-4">
+            <ul className="space-y-4">
               {judges.map((judge) => (
-                <div key={judge.id} className="flex items-center justify-between border-b py-2">
-                  <div className="flex flex-col">
-                    <span className="font-semibold">Judge #{judge.number}</span>
-                    <span className="text-muted-foreground text-xs">{judge.name}</span>
+                <li
+                  key={judge.id}
+                  className="flex items-center justify-between bg-background rounded-md p-4 shadow-sm"
+                >
+                  <div>
+                    <div className="font-semibold">
+                      #{judge.number} {judge.name}
+                      {Number(judge.number) === 1 && " (Chief Judge)"}
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <Switch
@@ -84,7 +91,9 @@ export default function AdminScoresPage() {
                       onCheckedChange={() => handleLockToggle(judge.id)}
                       className="mr-2"
                     />
-                    <span className="text-xs mr-4">{lockState[judge.id] ? "Locked" : "Unlocked"}</span>
+                    <span className="text-xs mr-4">
+                      {lockState[judge.id] ? "Locked" : "Unlocked"}
+                    </span>
                     <Button
                       variant="outline"
                       size="icon"
@@ -102,9 +111,9 @@ export default function AdminScoresPage() {
                       <Printer className="w-4 h-4" />
                     </Button>
                   </div>
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
           )}
         </CardContent>
       </Card>
