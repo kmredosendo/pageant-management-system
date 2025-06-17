@@ -3,34 +3,31 @@
 import { useEffect, useState } from "react";
 
 export function ActiveEventLabel() {
-  const [activeEvent, setActiveEvent] = useState<{ name: string; date: string } | null>(null);
+  const [eventTitle, setEventTitle] = useState<string | null>(null);
+  const [eventDate, setEventDate] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/admin/events/active")
-      .then(res => res.json())
-      .then(events => {
-        if (Array.isArray(events) && events.length > 0) {
-          setActiveEvent(events[0]);
-        } else {
-          setActiveEvent(null);
-        }
-      });
+    // Only fetch from localStorage (except on admin/page.tsx and app/page.tsx)
+    const storedTitle = typeof window !== "undefined" ? localStorage.getItem("activeEventTitle") : null;
+    const storedDate = typeof window !== "undefined" ? localStorage.getItem("activeEventDate") : null;
+    setEventTitle(storedTitle);
+    setEventDate(storedDate);
   }, []);
 
-  if (!activeEvent) return (
+  if (!eventTitle) return (
     <div className="text-sm text-muted-foreground mb-2 text-center">No active event</div>
   );
 
-  const formattedDate = new Date(activeEvent.date).toLocaleDateString("en-US", {
+  const formattedDate = eventDate ? new Date(eventDate).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
-  });
+  }) : null;
 
   return (
     <div className="mb-2 text-center">
-      <div className="text-lg font-bold text-primary leading-tight">{activeEvent.name}</div>
-      <div className="text-sm text-muted-foreground font-normal mt-0.5">{formattedDate}</div>
+      <div className="text-lg font-bold text-primary leading-tight">{eventTitle}</div>
+      {formattedDate && <div className="text-sm text-muted-foreground font-normal mt-0.5">{formattedDate}</div>}
     </div>
   );
 }

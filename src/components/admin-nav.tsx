@@ -10,6 +10,7 @@ import {
 	UserCheck,
 	ListChecks,
 	Medal,
+	ClipboardList,
 } from "lucide-react";
 
 const navItems = [
@@ -18,6 +19,7 @@ const navItems = [
 	{ href: "/admin/contestants", label: "Contestants", icon: Users },
 	{ href: "/admin/judges", label: "Judges", icon: UserCheck },
 	{ href: "/admin/criteria", label: "Criteria", icon: ListChecks },
+	{ href: "/admin/scores", label: "Scores", icon: ClipboardList },
 	{ href: "/admin/results", label: "Results", icon: Medal },
 ];
 

@@ -32,7 +32,7 @@ export default function JudgeScorePage() {
   const params = useParams();
   const judgeId = params?.id;
   const [event, setEvent] = useState<{ id: number; name: string } | null>(null);
-  const [judge, setJudge] = useState<{ id: number; name: string; number: number } | null>(null);
+  const [judge, setJudge] = useState<{ id: number; name: string; number: number; locked?: boolean } | null>(null);
   const [contestants, setContestants] = useState<Contestant[]>([]);
   const [criteria, setCriteria] = useState<Criteria[]>([]);
   const [scores, setScores] = useState<Record<string, string>>({});
@@ -158,6 +158,20 @@ export default function JudgeScorePage() {
   // Remove unused allSubCriterias and fix variable scoping
   // mainGroups and contestants are defined in the render scope
   // Move mainGroups definition inside the render function
+  // Poll for judge lock status every 5 seconds
+  useEffect(() => {
+    if (!judgeId) return;
+    const interval = setInterval(async () => {
+      const judgeRes = await fetch(`/api/admin/judges`);
+      const judgeData = await judgeRes.json();
+      const found = judgeData.find((j: { id: number }) => j.id.toString() === judgeId);
+      if (found && found.locked !== judge?.locked) {
+        setJudge((prev) => prev ? { ...prev, locked: found.locked } : found);
+      }
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [judgeId, judge?.locked]);
+
   if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   if (!event || !judge) return <div className="min-h-screen flex items-center justify-center">Event or Judge not found.</div>;
 
@@ -180,6 +194,9 @@ export default function JudgeScorePage() {
         <h1 className="text-2xl sm:text-3xl font-bold text-center text-primary mb-2">
           {event.name}
         </h1>
+        {judge?.locked && (
+          <div className="mb-4 text-center text-destructive font-semibold text-lg">Your scores are locked and cannot be modified.</div>
+        )}
         <form onSubmit={handleSubmit} className="flex flex-col gap-8">
           <table className="min-w-full border-separate" style={{ borderSpacing: 0 }}>
             <thead>
@@ -266,7 +283,7 @@ export default function JudgeScorePage() {
                               handleScoreChange(contestant.id, sub.id, v);
                             }}
                             required={!sub.autoAssignToAllContestants}
-                            disabled={sub.autoAssignToAllContestants}
+                            disabled={sub.autoAssignToAllContestants || judge?.locked}
                           />
                         </td>
                       ))
@@ -277,7 +294,7 @@ export default function JudgeScorePage() {
               })}
             </tbody>
           </table>
-          <Button type="submit" className="self-end">Submit Scores</Button>
+          <Button type="submit" className="self-end" disabled={judge?.locked}>Submit Scores</Button>
         </form>
       </Card>
     </div>
