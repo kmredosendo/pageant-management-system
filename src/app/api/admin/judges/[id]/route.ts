@@ -31,3 +31,21 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
     return NextResponse.json({ error: "Failed to delete judge" }, { status: 500 });
   }
 }
+
+// PATCH: lock/unlock judge
+export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+  const id = Number(params.id);
+  const { locked } = await req.json();
+  if (typeof locked !== "boolean") {
+    return NextResponse.json({ error: "Missing or invalid 'locked' field" }, { status: 400 });
+  }
+  try {
+    const judge = await prisma.judge.update({
+      where: { id },
+      data: { locked },
+    });
+    return NextResponse.json(judge);
+  } catch {
+    return NextResponse.json({ error: "Failed to update judge lock state" }, { status: 500 });
+  }
+}

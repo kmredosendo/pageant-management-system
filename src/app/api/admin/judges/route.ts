@@ -3,8 +3,10 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+// GET all judges for the current event
 export async function GET() {
-  const judges = await prisma.judge.findMany({ orderBy: { number: "asc" } });
+  // For now, just return all judges (optionally filter by event)
+  const judges = await prisma.judge.findMany();
   return NextResponse.json(judges);
 }
 
