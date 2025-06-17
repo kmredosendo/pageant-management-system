@@ -3,19 +3,19 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-type RouteContext = { params: { id: string } };
+type RouteParams = Promise<{ id: string }>;
 
 // Update judge by ID
-export async function PUT(req: NextRequest, context: RouteContext) {
-  const params = await context.params;
-  const id = Number(params.id);
+export async function PUT(req: NextRequest, { params }: { params: RouteParams }) {
+  const { id } = await params;
+  const judgeId = Number(id);
   const { number, name } = await req.json();
   if (!number || !name) {
     return NextResponse.json({ error: "Missing fields" }, { status: 400 });
   }
   try {
     const judge = await prisma.judge.update({
-      where: { id },
+      where: { id: judgeId },
       data: { number: Number(number), name },
     });
     return NextResponse.json(judge);
@@ -25,11 +25,11 @@ export async function PUT(req: NextRequest, context: RouteContext) {
 }
 
 // Delete judge by ID
-export async function DELETE(req: NextRequest, context: RouteContext) {
-  const params = await context.params;
-  const id = Number(params.id);
+export async function DELETE(req: NextRequest, { params }: { params: RouteParams }) {
+  const { id } = await params;
+  const judgeId = Number(id);
   try {
-    await prisma.judge.delete({ where: { id } });
+    await prisma.judge.delete({ where: { id: judgeId } });
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json({ error: "Failed to delete judge" }, { status: 500 });
@@ -37,16 +37,16 @@ export async function DELETE(req: NextRequest, context: RouteContext) {
 }
 
 // PATCH: lock/unlock judge
-export async function PATCH(req: NextRequest, context: RouteContext) {
-  const params = await context.params;
-  const id = Number(params.id);
+export async function PATCH(req: NextRequest, { params }: { params: RouteParams }) {
+  const { id } = await params;
+  const judgeId = Number(id);
   const { locked } = await req.json();
   if (typeof locked !== "boolean") {
     return NextResponse.json({ error: "Missing or invalid 'locked' field" }, { status: 400 });
   }
   try {
     const judge = await prisma.judge.update({
-      where: { id },
+      where: { id: judgeId },
       data: { locked },
     });
     return NextResponse.json(judge);

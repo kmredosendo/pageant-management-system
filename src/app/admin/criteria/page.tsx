@@ -33,6 +33,13 @@ type MainCriteria = {
   subCriterias: SubCriteria[];
 };
 
+type Event = {
+  id: number;
+  name: string;
+  date: string;
+  status: string;
+};
+
 export default function CriteriaPage() {
   const [criterias, setCriterias] = useState<MainCriteria[]>([]);
   const [loading, setLoading] = useState(true);
@@ -59,12 +66,22 @@ export default function CriteriaPage() {
   const [editSubWeight, setEditSubWeight] = useState("");
   const [editSubAuto, setEditSubAuto] = useState(false);
   const [deleteSubId, setDeleteSubId] = useState<number | null>(null);
+  const [activeEvent, setActiveEvent] = useState<Event | null>(null);
 
   useEffect(() => {
+    fetch("/api/admin/events/active")
+      .then(res => res.json())
+      .then(data => {
+        if (data.length > 0) setActiveEvent(data[0]);
+      });
     fetch("/api/admin/criteria")
       .then(res => res.json())
       .then(data => {
-        setCriterias(data);
+        if (Array.isArray(data)) {
+          setCriterias(data);
+        } else {
+          setCriterias([]);
+        }
         setLoading(false);
       })
       .catch(() => {
@@ -211,7 +228,7 @@ export default function CriteriaPage() {
             </CardTitle>
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <Button variant="default">
+                <Button variant="default" disabled={!activeEvent}>
                   <Plus className="w-4 h-4 mr-2" /> New Main Criteria
                 </Button>
               </DialogTrigger>

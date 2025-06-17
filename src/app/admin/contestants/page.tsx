@@ -155,7 +155,7 @@ export default function ContestantsPage() {
             </CardTitle>
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <Button variant="default">
+                <Button variant="default" disabled={!activeEvent}>
                   <Plus className="w-4 h-4 mr-2" /> New Contestant
                 </Button>
               </DialogTrigger>

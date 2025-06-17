@@ -92,7 +92,6 @@ export default function JudgeScorePage() {
       });
       setScores(prev => ({ ...autoScores, ...prev }));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contestants, criteria]);
 
   // Local storage key for autosave

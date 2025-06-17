@@ -17,6 +17,13 @@ type Judge = {
   name: string;
 };
 
+type Event = {
+  id: number;
+  name: string;
+  date: string;
+  status: string;
+};
+
 export default function JudgesPage() {
   const [judges, setJudges] = useState<Judge[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,7 +38,13 @@ export default function JudgesPage() {
   const [editName, setEditName] = useState("");
   const [editFormError, setEditFormError] = useState("");
 
+  const [activeEvent, setActiveEvent] = useState<Event | null>(null);
   useEffect(() => {
+    fetch("/api/admin/events/active")
+      .then(res => res.json())
+      .then(data => {
+        if (data.length > 0) setActiveEvent(data[0]);
+      });
     fetch("/api/admin/judges")
       .then(res => res.json())
       .then(data => {
@@ -131,7 +144,7 @@ export default function JudgesPage() {
             </CardTitle>
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <Button variant="default">
+                <Button variant="default" disabled={!activeEvent}>
                   <Plus className="w-4 h-4 mr-2" /> New Judge
                 </Button>
               </DialogTrigger>
