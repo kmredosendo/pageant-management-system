@@ -10,6 +10,7 @@ import { ActiveEventLabel } from "@/components/active-event-label";
 import { Edit, Trash2, ListChecks, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 
 const COMMON_IDENTIFIERS = [
   { value: "best-in-talent", label: "Best in Talent" },
@@ -389,20 +390,22 @@ export default function CriteriaPage() {
                       </DialogContent>
                     </Dialog>
                     {/* Delete Main Dialog */}
-                    <Dialog open={deleteMainId === main.id} onOpenChange={open => { if (!open) setDeleteMainId(null); }}>
-                      <DialogContent className="max-w-md w-full">
-                        <DialogHeader>
-                          <DialogTitle>Delete Main Criteria</DialogTitle>
-                        </DialogHeader>
+                    <AlertDialog open={deleteMainId === main.id} onOpenChange={open => { if (!open) setDeleteMainId(null); }}>
+                      <AlertDialogContent className="max-w-md w-full">
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Main Criteria</AlertDialogTitle>
+                        </AlertDialogHeader>
                         <div>Are you sure you want to delete <span className="font-semibold">{main.name}</span> and all its sub-criteria?</div>
                         <div className="flex gap-2 justify-end mt-4">
-                          <DialogClose asChild>
+                          <AlertDialogCancel asChild>
                             <Button type="button" variant="outline">Cancel</Button>
-                          </DialogClose>
-                          <Button type="button" variant="destructive" onClick={handleDeleteMain}>Delete</Button>
+                          </AlertDialogCancel>
+                          <AlertDialogAction asChild>
+                            <Button type="button" variant="destructive" onClick={handleDeleteMain}>Delete</Button>
+                          </AlertDialogAction>
                         </div>
-                      </DialogContent>
-                    </Dialog>
+                      </AlertDialogContent>
+                    </AlertDialog>
                     {/* Edit Sub Dialog */}
                     <Dialog open={editSubId !== null} onOpenChange={open => { if (!open) setEditSubId(null); }}>
                       <DialogContent className="max-w-md w-full">
@@ -448,20 +451,22 @@ export default function CriteriaPage() {
                       </DialogContent>
                     </Dialog>
                     {/* Delete Sub Dialog */}
-                    <Dialog open={deleteSubId !== null} onOpenChange={open => { if (!open) setDeleteSubId(null); }}>
-                      <DialogContent className="max-w-md w-full">
-                        <DialogHeader>
-                          <DialogTitle>Delete Sub-Criteria</DialogTitle>
-                        </DialogHeader>
+                    <AlertDialog open={deleteSubId !== null} onOpenChange={open => { if (!open) setDeleteSubId(null); }}>
+                      <AlertDialogContent className="max-w-md w-full">
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Sub-Criteria</AlertDialogTitle>
+                        </AlertDialogHeader>
                         <div>Are you sure you want to delete this sub-criteria?</div>
                         <div className="flex gap-2 justify-end mt-4">
-                          <DialogClose asChild>
+                          <AlertDialogCancel asChild>
                             <Button type="button" variant="outline">Cancel</Button>
-                          </DialogClose>
-                          <Button type="button" variant="destructive" onClick={handleDeleteSub}>Delete</Button>
+                          </AlertDialogCancel>
+                          <AlertDialogAction asChild>
+                            <Button type="button" variant="destructive" onClick={handleDeleteSub}>Delete</Button>
+                          </AlertDialogAction>
                         </div>
-                      </DialogContent>
-                    </Dialog>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </li>
                 );
               })}

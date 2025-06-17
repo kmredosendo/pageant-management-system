@@ -3,8 +3,11 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+type RouteContext = { params: { id: string } };
+
 // Update judge by ID
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, context: RouteContext) {
+  const params = await context.params;
   const id = Number(params.id);
   const { number, name } = await req.json();
   if (!number || !name) {
@@ -22,7 +25,8 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 }
 
 // Delete judge by ID
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, context: RouteContext) {
+  const params = await context.params;
   const id = Number(params.id);
   try {
     await prisma.judge.delete({ where: { id } });
@@ -33,7 +37,8 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
 }
 
 // PATCH: lock/unlock judge
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, context: RouteContext) {
+  const params = await context.params;
   const id = Number(params.id);
   const { locked } = await req.json();
   if (typeof locked !== "boolean") {

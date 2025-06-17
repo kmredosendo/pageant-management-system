@@ -9,6 +9,7 @@ import { AdminNav } from "@/components/admin-nav";
 import { ActiveEventLabel } from "@/components/active-event-label";
 import { UserCheck, Edit, Trash2, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 
 type Judge = {
   id: number;
@@ -225,11 +226,11 @@ export default function JudgesPage() {
           </form>
         </DialogContent>
       </Dialog>
-      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent className="max-w-md w-full">
-          <DialogHeader>
-            <DialogTitle>Delete Judge</DialogTitle>
-          </DialogHeader>
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent className="max-w-md w-full">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Judge</AlertDialogTitle>
+          </AlertDialogHeader>
           <div className="mb-2">
             Are you sure you want to delete judge <span className="font-semibold">#{judgeToDelete?.number} {judgeToDelete?.name}</span>?
             <br />
@@ -237,15 +238,17 @@ export default function JudgesPage() {
           </div>
           {deleteError && <div className="text-destructive text-sm mb-2">{deleteError}</div>}
           <div className="flex gap-2 justify-end mt-2">
-            <DialogClose asChild>
+            <AlertDialogCancel asChild>
               <Button type="button" variant="outline" onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-            </DialogClose>
-            <Button type="button" variant="destructive" onClick={handleConfirmDelete}>
-              Delete
-            </Button>
+            </AlertDialogCancel>
+            <AlertDialogAction asChild>
+              <Button type="button" variant="destructive" onClick={handleConfirmDelete}>
+                Delete
+              </Button>
+            </AlertDialogAction>
           </div>
-        </DialogContent>
-      </Dialog>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AdminNav } from "@/components/admin-nav";
 import { ActiveEventLabel } from "@/components/active-event-label";
 import { Printer, Eye } from "lucide-react";
-import Link from "next/link";
+import { RawScoresTable } from "@/components/RawScoresTable";
 
 interface Judge {
   id: number;
@@ -30,10 +30,10 @@ export default function AdminScoresPage() {
       .then((data: Judge[]) => {
         setJudges(data);
         setLockState(
-          data.reduce((acc, j) => {
+          data.reduce((acc: { [id: number]: boolean }, j) => {
             acc[j.id] = j.locked;
             return acc;
-          }, {} as { [id: number]: boolean })
+          }, {})
         );
         setLoading(false);
       });
@@ -55,7 +55,6 @@ export default function AdminScoresPage() {
   };
 
   const handlePrintBlank = (judge: Judge) => {
-    // Implement print blank scoresheet logic here
     window.open(`/admin/scores/blank?judgeId=${judge.id}`, "_blank");
   };
 
@@ -86,10 +85,20 @@ export default function AdminScoresPage() {
                       className="mr-2"
                     />
                     <span className="text-xs mr-4">{lockState[judge.id] ? "Locked" : "Unlocked"}</span>
-                    <Button variant="outline" size="icon" onClick={() => handleViewRaw(judge)} title="View Raw Scores">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => handleViewRaw(judge)}
+                      title="View Raw Scores"
+                    >
                       <Eye className="w-4 h-4" />
                     </Button>
-                    <Button variant="outline" size="icon" onClick={() => handlePrintBlank(judge)} title="Print Blank Scoresheet">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => handlePrintBlank(judge)}
+                      title="Print Blank Scoresheet"
+                    >
                       <Printer className="w-4 h-4" />
                     </Button>
                   </div>
@@ -100,17 +109,19 @@ export default function AdminScoresPage() {
         </CardContent>
       </Card>
       <Dialog open={rawDialogOpen} onOpenChange={setRawDialogOpen}>
-        <DialogContent className="max-w-4xl w-full">
-          <DialogHeader>
-            <DialogTitle>Raw Scores for Judge {selectedJudge?.number} - {selectedJudge?.name}</DialogTitle>
+        <DialogContent
+          className="max-w-7xl w-[75vw] p-0"
+          style={{ maxWidth: '75vw', width: '75vw' }}
+        >
+          <DialogHeader className="px-8 pt-8 pb-2 flex flex-row items-center justify-between">
+            <DialogTitle className="text-lg">
+              Raw Scores for Judge {selectedJudge?.number} - {selectedJudge?.name}
+            </DialogTitle>
           </DialogHeader>
-          {/* TODO: Insert RawScoresTable here, filtered by selectedJudge */}
           {selectedJudge && (
-            <iframe
-              src={`/admin/results/raw?judgeId=${selectedJudge.id}`}
-              className="w-full h-[60vh] border rounded"
-              title="Raw Scores"
-            />
+            <div className="p-8 pt-2 overflow-auto" style={{ maxHeight: '80vh' }}>
+              <RawScoresTable judgeId={selectedJudge.id} />
+            </div>
           )}
         </DialogContent>
       </Dialog>

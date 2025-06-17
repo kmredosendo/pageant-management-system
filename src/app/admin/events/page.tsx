@@ -10,6 +10,7 @@ import { AdminNav } from "@/components/admin-nav";
 import { Switch } from "@/components/ui/switch";
 import { ActiveEventLabel } from "@/components/active-event-label";
 import { toast } from "sonner";
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 
 type Event = {
   id: number;
@@ -37,6 +38,8 @@ export default function EventsPage() {
   const [deleteConfirmInput, setDeleteConfirmInput] = useState("");
   const [deleteError, setDeleteError] = useState("");
 
+  const [refreshActiveEventLabel, setRefreshActiveEventLabel] = useState(0);
+
   useEffect(() => {
     fetch("/api/admin/events")
       .then(res => res.json())
@@ -44,7 +47,7 @@ export default function EventsPage() {
         setEvents(data);
         setLoading(false);
       });
-  }, []);
+  }, [refreshActiveEventLabel]);
 
   const handleAddEvent = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,6 +63,7 @@ export default function EventsPage() {
       setNewEventDate("");
       setFormError("");
       toast.success('Event created successfully');
+      setRefreshActiveEventLabel(k => k + 1);
       // Refresh events
       fetch("/api/admin/events")
         .then(res => res.json())
@@ -91,6 +95,7 @@ export default function EventsPage() {
       setEditDialogOpen(false);
       setEditEvent(null);
       toast.success('Event updated successfully');
+      setRefreshActiveEventLabel(k => k + 1);
       // Refresh events
       fetch("/api/admin/events")
         .then(res => res.json())
@@ -124,6 +129,7 @@ export default function EventsPage() {
       setDeleteConfirmInput("");
       setDeleteError("");
       toast.success('Event deleted successfully');
+      setRefreshActiveEventLabel(k => k + 1);
     } else {
       setDeleteDialogOpen(false);
       setEventToDelete(null);
@@ -140,7 +146,7 @@ export default function EventsPage() {
       <Card className="w-full max-w-2xl mx-auto">
         <CardHeader className="flex flex-col gap-2 items-stretch">
           <AdminNav />
-          <ActiveEventLabel />
+          <ActiveEventLabel refresh={refreshActiveEventLabel} />
           <hr className="my-2" />
           <div className="flex items-center justify-between w-full">
             <CardTitle className="flex items-center gap-2">
@@ -212,6 +218,7 @@ export default function EventsPage() {
                                 status: checked ? "ACTIVE" : "INACTIVE"
                               })
                             });
+                            setRefreshActiveEventLabel(k => k + 1);
                             fetch("/api/admin/events")
                               .then(res => res.json())
                               .then(data => setEvents(data));
@@ -262,11 +269,11 @@ export default function EventsPage() {
             </DialogContent>
           </Dialog>
           {/* Delete Confirmation Dialog */}
-          <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-            <DialogContent className="max-w-md w-full">
-              <DialogHeader>
-                <DialogTitle>Delete Event</DialogTitle>
-              </DialogHeader>
+          <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+            <AlertDialogContent className="max-w-md w-full">
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete Event</AlertDialogTitle>
+              </AlertDialogHeader>
               <div className="mb-2">
                 Are you sure you want to delete the event <span className="font-semibold">{eventToDelete?.name}</span>?<br />
                 <span className="text-destructive font-semibold">This will also permanently delete all contestants, judges, criteria, and scores for this event. This action cannot be undone.</span>
@@ -284,20 +291,22 @@ export default function EventsPage() {
               />
               {deleteError && <div className="text-destructive text-sm mb-2">{deleteError}</div>}
               <div className="flex gap-2 justify-end mt-2">
-                <DialogClose asChild>
+                <AlertDialogCancel asChild>
                   <Button type="button" variant="outline" onClick={() => setDeleteDialogOpen(false)}>Cancel</Button>
-                </DialogClose>
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={handleConfirmDelete}
-                  disabled={!eventToDelete || deleteConfirmInput !== eventToDelete?.name}
-                >
-                  Delete
-                </Button>
+                </AlertDialogCancel>
+                <AlertDialogAction asChild>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={handleConfirmDelete}
+                    disabled={!eventToDelete || deleteConfirmInput !== eventToDelete?.name}
+                  >
+                    Delete
+                  </Button>
+                </AlertDialogAction>
               </div>
-            </DialogContent>
-          </Dialog>
+            </AlertDialogContent>
+          </AlertDialog>
         </CardContent>
       </Card>
     </div>

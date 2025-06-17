@@ -21,16 +21,6 @@ export default function AdminLoginPage() {
       body: JSON.stringify({ username, password }),
     });
     if (res.ok) {
-      // Fetch and store event title on login
-      const eventRes = await fetch("/api/admin/events/active");
-      const eventData = await eventRes.json();
-      if (eventData[0]?.name) {
-        localStorage.setItem("activeEventTitle", eventData[0].name);
-        localStorage.setItem("activeEventDate", eventData[0].date);
-      } else {
-        localStorage.removeItem("activeEventTitle");
-        localStorage.removeItem("activeEventDate");
-      }
       router.push("/admin/dashboard");
     } else {
       setError("Invalid credentials");

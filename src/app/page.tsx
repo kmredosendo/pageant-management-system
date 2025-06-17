@@ -12,25 +12,12 @@ export default function Home() {
 	const router = useRouter();
 
 	useEffect(() => {
-		// Check localStorage for event title first
-		if (typeof window !== "undefined") {
-			const eventTitle = localStorage.getItem("activeEventTitle");
-			if (eventTitle) {
-				setEvent({ id: 0, name: eventTitle });
-				// Still fetch judges for the event
-				fetch("/api/admin/judges")
-					.then((res) => res.json())
-					.then((data) => setJudges(data));
-				return;
-			}
-		}
 		// Fallback: fetch from API if not in localStorage
 		fetch("/api/admin/events/active")
 			.then((res) => res.json())
 			.then((events) => {
 				if (Array.isArray(events) && events.length > 0) {
 					setEvent(events[0]);
-					localStorage.setItem("activeEventTitle", events[0].name);
 					fetch("/api/admin/judges")
 						.then((res) => res.json())
 						.then((data) => setJudges(data));
