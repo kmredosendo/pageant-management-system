@@ -6,23 +6,39 @@ import { Card } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 
 export default function Home() {
-	const [event, setEvent] = useState<{ id: number; name: string } | null>(null);
+	const [event, setEvent] = useState<{ id: number; name: string; date: string } | null>(null);
 	const [judges, setJudges] = useState<{ id: number; number: number; name: string }[]>([]);
 	const [selectedJudge, setSelectedJudge] = useState<string>("");
 	const router = useRouter();
 
 	useEffect(() => {
-		// Fallback: fetch from API if not in localStorage
-		fetch("/api/admin/events/active")
-			.then((res) => res.json())
-			.then((events) => {
-				if (Array.isArray(events) && events.length > 0) {
-					setEvent(events[0]);
-					fetch("/api/admin/judges")
-						.then((res) => res.json())
-						.then((data) => setJudges(data));
+		// Try to get from localStorage first
+		const stored = typeof window !== "undefined" ? localStorage.getItem("activeEvent") : null;
+		if (stored) {
+			try {
+				const parsed = JSON.parse(stored);
+				if (parsed && parsed.id && parsed.name && parsed.date) {
+					setEvent(parsed);
 				}
-			});
+			} catch {}
+		}
+		// Fallback: fetch from API if not in localStorage
+		if (!stored) {
+			fetch("/api/admin/events/active")
+				.then((res) => res.json())
+				.then((events) => {
+					if (Array.isArray(events) && events.length > 0) {
+						setEvent(events[0]);
+						fetch("/api/admin/judges")
+							.then((res) => res.json())
+							.then((data) => setJudges(data));
+					}
+				});
+		} else {
+			fetch("/api/admin/judges")
+				.then((res) => res.json())
+				.then((data) => setJudges(data));
+		}
 	}, []);
 
 	const handleJudgeSelect = (value: string) => {

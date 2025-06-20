@@ -10,6 +10,13 @@ import { ActiveEventLabel } from "@/components/active-event-label";
 import { Printer, Eye } from "lucide-react";
 import { RawScoresTable } from "@/components/RawScoresTable";
 
+interface Event {
+  id: number;
+  name: string;
+  date: string;
+  status: string;
+}
+
 interface Judge {
   id: number;
   name: string;
@@ -23,9 +30,12 @@ export default function AdminScoresPage() {
   const [lockState, setLockState] = useState<{ [id: number]: boolean }>({});
   const [selectedJudge, setSelectedJudge] = useState<Judge | null>(null);
   const [rawDialogOpen, setRawDialogOpen] = useState(false);
+  const [activeEvent, setActiveEvent] = useState<Event | null>(null);
 
-  useEffect(() => {
-    fetch("/api/admin/judges")
+  // Fetch judges for the current event
+  const fetchJudges = (eventId: number) => {
+    setLoading(true);
+    fetch(`/api/admin/judges?eventId=${eventId}`)
       .then((res) => res.json())
       .then((data: Judge[]) => {
         setJudges(data);
@@ -36,7 +46,63 @@ export default function AdminScoresPage() {
           }, {})
         );
         setLoading(false);
+      })
+      .catch(() => {
+        setJudges([]);
+        setLockState({});
+        setLoading(false);
       });
+  };
+
+  // Load active event from localStorage or API
+  useEffect(() => {
+    const loadActiveEvent = async () => {
+      const stored = typeof window !== "undefined" ? localStorage.getItem("activeEvent") : null;
+      let event: Event | null = null;
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (parsed && parsed.id && parsed.name && parsed.date) {
+            event = parsed;
+          }
+        } catch {}
+      }
+      if (!event) {
+        // fallback to API
+        const res = await fetch("/api/admin/events/active");
+        const data = await res.json();
+        if (data.length > 0) {
+          event = data[0];
+        }
+      }
+      setActiveEvent(event);
+      if (event) fetchJudges(event.id);
+      else setLoading(false);
+    };
+    loadActiveEvent();
+    // Listen for storage changes (active event changed in another tab)
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "activeEvent") {
+        const stored = e.newValue;
+        let event: Event | null = null;
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (parsed && parsed.id && parsed.name && parsed.date) {
+              event = parsed;
+            }
+          } catch {}
+        }
+        setActiveEvent(event);
+        if (event) fetchJudges(event.id);
+        else {
+          setJudges([]);
+          setLockState({});
+        }
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
   }, []);
 
   const handleLockToggle = (judgeId: number) => {
@@ -70,6 +136,8 @@ export default function AdminScoresPage() {
         <CardContent>
           {loading ? (
             <div className="text-center text-muted-foreground py-10">Loading...</div>
+          ) : !activeEvent ? (
+            <div className="text-center text-muted-foreground py-10">No active event selected.</div>
           ) : judges.length === 0 ? (
             <div className="text-center text-muted-foreground py-10">No judges found.</div>
           ) : (

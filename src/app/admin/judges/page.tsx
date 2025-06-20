@@ -11,17 +11,17 @@ import { UserCheck, Edit, Trash2, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 
-type Judge = {
-  id: number;
-  number: number;
-  name: string;
-};
-
 type Event = {
   id: number;
   name: string;
   date: string;
   status: string;
+};
+
+type Judge = {
+  id: number;
+  number: number;
+  name: string;
 };
 
 export default function JudgesPage() {
@@ -38,37 +38,95 @@ export default function JudgesPage() {
   const [editName, setEditName] = useState("");
   const [editFormError, setEditFormError] = useState("");
 
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [judgeToDelete, setJudgeToDelete] = useState<Judge | null>(null);
+  const [deleteError, setDeleteError] = useState("");
+
+  // Store active event in state
   const [activeEvent, setActiveEvent] = useState<Event | null>(null);
-  useEffect(() => {
-    fetch("/api/admin/events/active")
-      .then(res => res.json())
-      .then(data => {
-        if (data.length > 0) setActiveEvent(data[0]);
-      });
-    fetch("/api/admin/judges")
+
+  // Fetch judges for the current event
+  const fetchJudges = (eventId: number) => {
+    setLoading(true);
+    fetch(`/api/admin/judges?eventId=${eventId}`)
       .then(res => res.json())
       .then(data => {
         setJudges(data);
         setLoading(false);
+      })
+      .catch(() => {
+        setJudges([]);
+        setLoading(false);
       });
+  };
+
+  // Load active event from localStorage or API
+  useEffect(() => {
+    const loadActiveEvent = async () => {
+      const stored = typeof window !== "undefined" ? localStorage.getItem("activeEvent") : null;
+      let event: Event | null = null;
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (parsed && parsed.id && parsed.name && parsed.date) {
+            event = parsed;
+          }
+        } catch {}
+      }
+      if (!event) {
+        // fallback to API
+        const res = await fetch("/api/admin/events/active");
+        const data = await res.json();
+        if (data.length > 0) {
+          event = data[0];
+        }
+      }
+      setActiveEvent(event);
+      if (event) fetchJudges(event.id);
+      else setLoading(false);
+    };
+    loadActiveEvent();
+    // Listen for storage changes (active event changed in another tab)
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "activeEvent") {
+        const stored = e.newValue;
+        let event: Event | null = null;
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (parsed && parsed.id && parsed.name && parsed.date) {
+              event = parsed;
+            }
+          } catch {}
+        }
+        setActiveEvent(event);
+        if (event) fetchJudges(event.id);
+        else setJudges([]);
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
   }, []);
 
   const handleAddJudge = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError("");
-    const res = await fetch("/api/admin/judges", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ number: newNumber, name: newName }),
-    });
+    if (!activeEvent) {
+      setFormError("No active event selected");
+      return;
+    }
+    const res = await fetch(`/api/admin/judges?eventId=${activeEvent.id}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ number: newNumber, name: newName }),
+      });
     if (res.ok) {
       setOpen(false);
       setNewNumber("");
       setNewName("");
       setFormError("");
-      fetch("/api/admin/judges")
-        .then(res => res.json())
-        .then(data => setJudges(data));
+      fetchJudges(activeEvent.id);
       toast.success("Judge added successfully");
     } else {
       setFormError("Failed to add judge");
@@ -86,29 +144,24 @@ export default function JudgesPage() {
 
   const handleEditJudge = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editJudge) return;
+    if (!editJudge || !activeEvent) return;
     setEditFormError("");
-    const res = await fetch(`/api/admin/judges/${editJudge.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ number: editNumber, name: editName }),
-    });
+    const res = await fetch(`/api/admin/judges/${editJudge.id}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ number: editNumber, name: editName }),
+      });
     if (res.ok) {
       setEditDialogOpen(false);
       setEditJudge(null);
-      fetch("/api/admin/judges")
-        .then(res => res.json())
-        .then(data => setJudges(data));
+      fetchJudges(activeEvent.id);
       toast.success("Judge updated successfully");
     } else {
       setEditFormError("Failed to update judge");
       toast.error("Failed to update judge");
     }
   };
-
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [judgeToDelete, setJudgeToDelete] = useState<Judge | null>(null);
-  const [deleteError, setDeleteError] = useState("");
 
   const handleDeleteJudge = (judge: Judge) => {
     setJudgeToDelete(judge);
@@ -117,10 +170,10 @@ export default function JudgesPage() {
   };
 
   const handleConfirmDelete = async () => {
-    if (!judgeToDelete) return;
+    if (!judgeToDelete || !activeEvent) return;
     const res = await fetch(`/api/admin/judges/${judgeToDelete.id}`, { method: "DELETE" });
     if (res.ok) {
-      setJudges(judges => judges.filter(j => j.id !== judgeToDelete.id));
+      fetchJudges(activeEvent.id);
       setDeleteDialogOpen(false);
       setJudgeToDelete(null);
       setDeleteError("");
@@ -130,6 +183,9 @@ export default function JudgesPage() {
       toast.error("Failed to delete judge");
     }
   };
+
+  // Helper to get the current event id for UI disables
+  const getActiveEventId = () => activeEvent?.id;
 
   return (
     <div className="min-h-screen bg-muted flex flex-col items-center py-10 px-2 sm:px-4">
@@ -144,7 +200,7 @@ export default function JudgesPage() {
             </CardTitle>
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <Button variant="default" disabled={!activeEvent}>
+                <Button variant="default" disabled={!getActiveEventId()}>
                   <Plus className="w-4 h-4 mr-2" /> New Judge
                 </Button>
               </DialogTrigger>
@@ -186,6 +242,8 @@ export default function JudgesPage() {
         <CardContent>
           {loading ? (
             <div className="text-center text-muted-foreground py-10">Loading...</div>
+          ) : !activeEvent ? (
+            <div className="text-center text-muted-foreground py-10">No active event selected.</div>
           ) : judges.length === 0 ? (
             <div className="text-center text-muted-foreground py-10">No judges found.</div>
           ) : (

@@ -3,38 +3,41 @@
 import { useEffect, useState } from "react";
 
 export function ActiveEventLabel({ refresh }: { refresh?: number }) {
-  const [eventTitle, setEventTitle] = useState<string | null>(null);
-  const [eventDate, setEventDate] = useState<string | null>(null);
+  const [event, setEvent] = useState<{ id: number; name: string; date: string } | null>(null);
 
   useEffect(() => {
     // Try to get from localStorage first
-    const storedTitle = typeof window !== "undefined" ? localStorage.getItem("activeEventTitle") : null;
-    const storedDate = typeof window !== "undefined" ? localStorage.getItem("activeEventDate") : null;
-    if (storedTitle && storedDate) {
-      setEventTitle(storedTitle);
-      setEventDate(storedDate);
-    } else {
+    const updateFromLocalStorage = () => {
+      const stored = typeof window !== "undefined" ? localStorage.getItem("activeEvent") : null;
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (parsed && parsed.name && parsed.date) {
+            setEvent(parsed);
+            return;
+          }
+        } catch {}
+      }
       // Fallback: fetch the active event from the API
       fetch("/api/admin/events/active")
         .then(res => res.json())
         .then(events => {
           if (Array.isArray(events) && events.length > 0) {
-            setEventTitle(events[0].name);
-            setEventDate(events[0].date);
-            localStorage.setItem("activeEventTitle", events[0].name);
-            localStorage.setItem("activeEventDate", events[0].date);
+            setEvent({ id: events[0].id, name: events[0].name, date: events[0].date });
+            localStorage.setItem("activeEvent", JSON.stringify({ id: events[0].id, name: events[0].name, date: events[0].date }));
           } else {
-            setEventTitle(null);
-            setEventDate(null);
-            localStorage.removeItem("activeEventTitle");
-            localStorage.removeItem("activeEventDate");
+            setEvent(null);
+            localStorage.removeItem("activeEvent");
           }
         });
-    }
+    };
+    updateFromLocalStorage();
+    window.addEventListener("storage", updateFromLocalStorage);
+    return () => window.removeEventListener("storage", updateFromLocalStorage);
   }, [refresh]);
 
-  const formattedDate = eventDate
-    ? new Date(eventDate).toLocaleDateString("en-US", {
+  const formattedDate = event?.date
+    ? new Date(event.date).toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric",
@@ -43,9 +46,9 @@ export function ActiveEventLabel({ refresh }: { refresh?: number }) {
 
   return (
     <div className="mb-2 text-center">
-      {eventTitle ? (
+      {event ? (
         <>
-          <div className="text-lg font-bold text-primary leading-tight">{eventTitle}</div>
+          <div className="text-lg font-bold text-primary leading-tight">{event.name}</div>
           {formattedDate && (
             <span className="text-sm text-muted-foreground font-normal mt-0.5">{formattedDate}</span>
           )}

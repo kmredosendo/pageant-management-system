@@ -67,7 +67,14 @@ export default function EventsPage() {
       // Refresh events
       fetch("/api/admin/events")
         .then(res => res.json())
-        .then(data => setEvents(data));
+        .then(data => {
+          setEvents(data);
+          // Set localStorage to the new event if it's the only one or the latest
+          if (Array.isArray(data) && data.length > 0) {
+            const latest = data[data.length - 1];
+            localStorage.setItem("activeEvent", JSON.stringify({ id: latest.id, name: latest.name, date: latest.date }));
+          }
+        });
     } else {
       setFormError("Failed to create event");
       toast.error('Failed to create event');
@@ -99,7 +106,14 @@ export default function EventsPage() {
       // Refresh events
       fetch("/api/admin/events")
         .then(res => res.json())
-        .then(data => setEvents(data));
+        .then(data => {
+          setEvents(data);
+          // If the edited event is the active one, update localStorage
+          const active = JSON.parse(localStorage.getItem("activeEvent") || '{}');
+          if (active && active.id === editEvent.id) {
+            localStorage.setItem("activeEvent", JSON.stringify({ id: editEvent.id, name: editEventName, date: editEventDate }));
+          }
+        });
     } else {
       setEditFormError("Failed to update event");
       toast.error('Failed to update event');
@@ -130,6 +144,12 @@ export default function EventsPage() {
       setDeleteError("");
       toast.success('Event deleted successfully');
       setRefreshActiveEventLabel(k => k + 1);
+      // If the deleted event is the active one, remove from localStorage
+      const active = JSON.parse(localStorage.getItem("activeEvent") || '{}');
+      if (active && active.id === eventToDelete.id) {
+        localStorage.removeItem("activeEvent");
+        setRefreshActiveEventLabel(k => k + 1);
+      }
     } else {
       setDeleteDialogOpen(false);
       setEventToDelete(null);
@@ -209,6 +229,21 @@ export default function EventsPage() {
                         <Switch
                           checked={event.status === "ACTIVE"}
                           onCheckedChange={async (checked) => {
+                            if (checked) {
+                              // Deactivate any currently active event first
+                              const currentActive = events.find(e => e.status === "ACTIVE" && e.id !== event.id);
+                              if (currentActive) {
+                                await fetch(`/api/admin/events/${currentActive.id}`, {
+                                  method: "PUT",
+                                  headers: { "Content-Type": "application/json" },
+                                  body: JSON.stringify({
+                                    name: currentActive.name,
+                                    date: currentActive.date,
+                                    status: "INACTIVE"
+                                  })
+                                });
+                              }
+                            }
                             await fetch(`/api/admin/events/${event.id}`, {
                               method: "PUT",
                               headers: { "Content-Type": "application/json" },
@@ -221,7 +256,20 @@ export default function EventsPage() {
                             setRefreshActiveEventLabel(k => k + 1);
                             fetch("/api/admin/events")
                               .then(res => res.json())
-                              .then(data => setEvents(data));
+                              .then(data => {
+                                setEvents(data);
+                                // If activating, set as activeEvent in localStorage
+                                if (checked) {
+                                  localStorage.setItem("activeEvent", JSON.stringify({ id: event.id, name: event.name, date: event.date }));
+                                } else {
+                                  // If deactivating the current active event, remove from localStorage
+                                  const active = JSON.parse(localStorage.getItem("activeEvent") || '{}');
+                                  if (active && active.id === event.id) {
+                                    localStorage.removeItem("activeEvent");
+                                    setRefreshActiveEventLabel(k => k + 1);
+                                  }
+                                }
+                              });
                           }}
                         />
                         <span className="text-xs">{event.status === "ACTIVE" ? "Active" : "Inactive"}</span>

@@ -3,8 +3,14 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export async function GET() {
-  const contestants = await prisma.contestant.findMany({ orderBy: { number: "asc" } });
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const eventId = searchParams.get("eventId");
+  const where = eventId ? { eventId: Number(eventId) } : {};
+  const contestants = await prisma.contestant.findMany({
+    where,
+    orderBy: { number: "asc" },
+  });
   return NextResponse.json(contestants);
 }
 

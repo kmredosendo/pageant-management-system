@@ -12,19 +12,21 @@ import { ActiveEventLabel } from "@/components/active-event-label";
 import { toast } from "sonner";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 
-type Event = {
-  id: number;
-  name: string;
-  date: string;
-  status: string;
-};
-
-type Contestant = {
+// Add Contestant interface to match the expected structure and resolve the missing type error
+interface Contestant {
   id: number;
   number: number;
   name: string;
   sex?: string;
-};
+}
+
+// Add Event type for local state
+interface Event {
+  id: number;
+  name: string;
+  date: string;
+  status: string;
+}
 
 export default function ContestantsPage() {
   const [contestants, setContestants] = useState<Contestant[]>([]);
@@ -46,21 +48,77 @@ export default function ContestantsPage() {
   const [contestantToDelete, setContestantToDelete] = useState<Contestant | null>(null);
   const [deleteError, setDeleteError] = useState("");
 
-  // Remove event selector and use active event for new contestants
+  // Store active event in state
   const [activeEvent, setActiveEvent] = useState<Event | null>(null);
-  useEffect(() => {
-    fetch("/api/admin/events/active")
-      .then(res => res.json())
-      .then(data => {
-        if (data.length > 0) setActiveEvent(data[0]);
-      });
-    fetch("/api/admin/contestants")
+
+  // Fetch contestants for the current event
+  const fetchContestants = (eventId: number) => {
+    setLoading(true);
+    fetch(`/api/admin/contestants?eventId=${eventId}`)
       .then(res => res.json())
       .then(data => {
         setContestants(data);
         setLoading(false);
+      })
+      .catch(() => {
+        setContestants([]);
+        setLoading(false);
       });
+  };
+
+  // Load active event from localStorage or API
+  useEffect(() => {
+    const loadActiveEvent = async () => {
+      const stored = typeof window !== "undefined" ? localStorage.getItem("activeEvent") : null;
+      let event: Event | null = null;
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (parsed && parsed.id && parsed.name && parsed.date) {
+            event = parsed;
+          }
+        } catch {}
+      }
+      if (!event) {
+        // fallback to API
+        const res = await fetch("/api/admin/events/active");
+        const data = await res.json();
+        if (data.length > 0) {
+          event = data[0];
+        }
+      }
+      setActiveEvent(event);
+    };
+    loadActiveEvent();
+    // Listen for storage changes (active event changed in another tab)
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "activeEvent") {
+        const stored = e.newValue;
+        let event: Event | null = null;
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (parsed && parsed.id && parsed.name && parsed.date) {
+              event = parsed;
+            }
+          } catch {}
+        }
+        setActiveEvent(event);
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
   }, []);
+
+  // Fetch contestants whenever activeEvent changes
+  useEffect(() => {
+    if (activeEvent && activeEvent.id) {
+      fetchContestants(activeEvent.id);
+    } else {
+      setContestants([]);
+      setLoading(false);
+    }
+  }, [activeEvent?.id]);
 
   const handleAddContestant = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,20 +127,19 @@ export default function ContestantsPage() {
       setFormError("No active event selected");
       return;
     }
-    const res = await fetch("/api/admin/contestants", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ number: newNumber, name: newName, sex: newSex, eventId: activeEvent.id }),
-    });
+    const res = await fetch(`/api/admin/contestants?eventId=${activeEvent.id}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ number: newNumber, name: newName, sex: newSex, eventId: activeEvent.id }),
+      });
     if (res.ok) {
       setOpen(false);
       setNewNumber("");
       setNewName("");
       setNewSex("");
       setFormError("");
-      fetch("/api/admin/contestants")
-        .then(res => res.json())
-        .then(data => setContestants(data));
+      fetchContestants(activeEvent.id);
       toast.success("Contestant added successfully");
     } else {
       setFormError("Failed to add contestant");
@@ -101,19 +158,18 @@ export default function ContestantsPage() {
 
   const handleEditContestant = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editContestant) return;
+    if (!editContestant || !activeEvent) return;
     setEditFormError("");
-    const res = await fetch(`/api/admin/contestants/${editContestant.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ number: editNumber, name: editName, sex: editSex }),
-    });
+    const res = await fetch(`/api/admin/contestants/${editContestant.id}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ number: editNumber, name: editName, sex: editSex }),
+      });
     if (res.ok) {
       setEditDialogOpen(false);
       setEditContestant(null);
-      fetch("/api/admin/contestants")
-        .then(res => res.json())
-        .then(data => setContestants(data));
+      fetchContestants(activeEvent.id);
       toast.success("Contestant updated successfully");
     } else {
       setEditFormError("Failed to update contestant");
@@ -128,10 +184,10 @@ export default function ContestantsPage() {
   };
 
   const handleConfirmDelete = async () => {
-    if (!contestantToDelete) return;
+    if (!contestantToDelete || !activeEvent) return;
     const res = await fetch(`/api/admin/contestants/${contestantToDelete.id}`, { method: "DELETE" });
     if (res.ok) {
-      setContestants(contestants => contestants.filter(c => c.id !== contestantToDelete.id));
+      fetchContestants(activeEvent.id);
       setDeleteDialogOpen(false);
       setContestantToDelete(null);
       setDeleteError("");
@@ -141,6 +197,9 @@ export default function ContestantsPage() {
       toast.error("Failed to delete contestant");
     }
   };
+
+  // Helper to get the current event id for UI disables
+  const getActiveEventId = () => activeEvent?.id;
 
   return (
     <div className="min-h-screen bg-muted flex flex-col items-center py-10 px-2 sm:px-4">
@@ -155,7 +214,7 @@ export default function ContestantsPage() {
             </CardTitle>
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <Button variant="default" disabled={!activeEvent}>
+                <Button variant="default" disabled={!getActiveEventId()}>
                   <Plus className="w-4 h-4 mr-2" /> New Contestant
                 </Button>
               </DialogTrigger>
@@ -208,6 +267,8 @@ export default function ContestantsPage() {
         <CardContent>
           {loading ? (
             <div className="text-center text-muted-foreground py-10">Loading...</div>
+          ) : !activeEvent ? (
+            <div className="text-center text-muted-foreground py-10">No active event selected.</div>
           ) : contestants.length === 0 ? (
             <div className="text-center text-muted-foreground py-10">No contestants found.</div>
           ) : (
