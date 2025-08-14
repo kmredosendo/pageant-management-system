@@ -1,13 +1,20 @@
 import Image from "next/image";
 
-export function PrintHeader({ event }: { event: { name: string; date: string } | null }) {
+export function PrintHeader({ event }: { event: { name: string; date: string; institutionName?: string; institutionAddress?: string; venue?: string } | null }) {
   return (
-    <div className="w-full flex flex-col items-center mb-8 print:mb-4">
+    // <div className="w-full flex flex-col items-center mb-8 print:mb-4">
+    <div className="w-full flex flex-col mb-8 print:mb-4">
       <div className="flex items-center gap-4">
         <Image src="/favicon.png" alt="Logo" width={72} height={72} className="rounded" />
-        <div className="flex flex-col items-center">
-          <span className="text-lg font-bold">John B. Lacson Foundation Maritime University (Molo), Inc.</span>
-          <span className="text-base font-semibold">M. H. del Pilar St., Molo, Iloilo City, Philippines</span>
+        {/* <div className="flex flex-col items-center"> */}
+        <div className="flex flex-col">
+          <span className="text-lg font-bold">{event?.institutionName || "Institution Name"}</span>
+          {event?.institutionAddress && (
+            <span className="text-base font-semibold">{event.institutionAddress}</span>
+          )}
+          {event?.venue && (
+            <span className="text-base font-normal">{event.venue}</span>
+          )}
         </div>
       </div>
       {event && (
