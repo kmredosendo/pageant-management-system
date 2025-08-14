@@ -1,3 +1,17 @@
+// GET judge by ID
+export async function GET(req: NextRequest, { params }: { params: RouteParams }) {
+  const { id } = await params;
+  const judgeId = Number(id);
+  try {
+    const judge = await prisma.judge.findUnique({ where: { id: judgeId } });
+    if (!judge) {
+      return NextResponse.json({ error: "Judge not found" }, { status: 404 });
+    }
+    return NextResponse.json(judge);
+  } catch {
+    return NextResponse.json({ error: "Failed to fetch judge" }, { status: 500 });
+  }
+}
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 

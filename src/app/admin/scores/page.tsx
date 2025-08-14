@@ -127,6 +127,7 @@ export default function AdminScoresPage() {
                     <span className="text-xs mr-4">
                       {lockState[judge.id] ? "Locked" : "Unlocked"}
                     </span>
+
                     <Button
                       variant="outline"
                       size="icon"
@@ -134,6 +135,14 @@ export default function AdminScoresPage() {
                       title="View Raw Scores"
                     >
                       <Eye className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => window.open(`/admin/scores/print/${judge.id}`, '_blank')}
+                      title="Print Raw Scores"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2m-8 0h8v4H6v-4z" /></svg>
                     </Button>
 
                   </div>
@@ -155,7 +164,6 @@ export default function AdminScoresPage() {
           </DialogHeader>
           {selectedJudge && (
             <div className="relative p-8 pt-2 overflow-auto print:p-0 print:pt-0" style={{ maxHeight: '80vh' }}>
-              {/* On screen: normal dialog content */}
               <div>
                 <RawScoresTable judgeId={selectedJudge.id} />
               </div>
