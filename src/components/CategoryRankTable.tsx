@@ -11,11 +11,11 @@ interface Contestant {
   scores: Array<{ judgeId: number; judgeName: string; value: number }>;
 }
 
-interface TalentRankTableProps {
+interface CategoryRankTableProps {
   contestants: Contestant[];
 }
 
-export function TalentRankTable({ contestants }: TalentRankTableProps) {
+export function CategoryRankTable({ contestants }: CategoryRankTableProps) {
   // Prepare data for ranking per judge
   const processed = contestants.map(c => ({
     ...c,

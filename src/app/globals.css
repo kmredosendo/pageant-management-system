@@ -120,3 +120,12 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Print-specific highlight for winner row */
+@media print {
+  .bg-yellow-100 {
+    background-color: #fef9c3 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

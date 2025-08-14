@@ -9,7 +9,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Medal, Star, Mic, Users, ListOrdered, User, Eye, Printer } from "lucide-react";
-import { TalentRankTable } from "@/components/TalentRankTable";
+import { CategoryRankTable } from "@/components/CategoryRankTable";
 import { AdminNav } from "@/components/admin-nav";
 import { ActiveEventLabel } from "@/components/active-event-label";
 
@@ -42,6 +42,35 @@ export default function AdminResultsPage() {
       setTalentLoading(false);
     }
   }, [talentOpen]);
+
+  // State for Best in Interview dialog
+  const [interviewOpen, setInterviewOpen] = useState(false);
+  const [interviewLoading, setInterviewLoading] = useState(false);
+  const [interviewData, setInterviewData] = useState<null | {
+    event: { id: number; name: string; date: string };
+    criteria: { id: number; name: string; identifier: string };
+    contestants: Array<{
+      contestantId: number;
+      contestantName: string;
+      scores: Array<{ judgeId: number; judgeName: string; value: number }>;
+    }>;
+  }>(null);
+  useEffect(() => {
+    if (interviewOpen && !interviewData && !interviewLoading) {
+      setInterviewLoading(true);
+      fetch("/api/interview-scores")
+        .then((res) => res.json())
+        .then((data) => {
+          setInterviewData(data);
+          setInterviewLoading(false);
+        })
+        .catch(() => setInterviewLoading(false));
+    }
+    if (!interviewOpen) {
+      setInterviewData(null);
+      setInterviewLoading(false);
+    }
+  }, [interviewOpen]);
 
   return (
     <div className="min-h-screen bg-muted flex flex-col items-center py-10 px-2 sm:px-4">
@@ -83,7 +112,7 @@ export default function AdminResultsPage() {
                         {talentLoading ? (
                           <div className="py-4 text-center text-muted-foreground">Loading...</div>
                         ) : talentData && talentData.contestants.length > 0 ? (
-                          <TalentRankTable contestants={talentData.contestants} />
+                          <CategoryRankTable contestants={talentData.contestants} />
                         ) : (
                           <div className="py-4 text-center text-muted-foreground">No scores found.</div>
                         )}
@@ -95,7 +124,7 @@ export default function AdminResultsPage() {
                     size="icon"
                     aria-label="Print"
                     title="Print Talent Results"
-                    onClick={() => window.open('/admin/results/print', '_blank')}
+                    onClick={() => window.open('/admin/results/print/talent', '_blank')}
                   >
                     <Printer />
                   </Button>
@@ -110,21 +139,38 @@ export default function AdminResultsPage() {
                   <span className="text-base font-semibold">Best in Interview</span>
                 </div>
                 <div className="flex gap-1">
-                  <Dialog>
+                  <Dialog open={interviewOpen} onOpenChange={setInterviewOpen}>
                     <DialogTrigger asChild>
                       <Button variant="outline" size="icon" aria-label="View" title="View Interview Results">
                         <Eye />
                       </Button>
                     </DialogTrigger>
-                    <DialogContent>
-                      <div className="flex items-center gap-2 mb-2">
-                        <Mic className="w-5 h-5 text-blue-500" />
-                        <DialogTitle>Best in Interview</DialogTitle>
-                      </div>
-                      {/* Dialog content for Best in Interview goes here */}
-                    </DialogContent>
+                    {interviewOpen && (
+                      <DialogContent
+                        className="max-w-7xl w-[75vw]"
+                        style={{ maxWidth: '75vw', width: '75vw' }}
+                      >
+                        <div className="flex items-center gap-2 mb-2">
+                          <Mic className="w-5 h-5 text-blue-500" />
+                          <DialogTitle>Best in Interview</DialogTitle>
+                        </div>
+                        {interviewLoading ? (
+                          <div className="py-4 text-center text-muted-foreground">Loading...</div>
+                        ) : interviewData && interviewData.contestants.length > 0 ? (
+                          <CategoryRankTable contestants={interviewData.contestants} />
+                        ) : (
+                          <div className="py-4 text-center text-muted-foreground">No scores found.</div>
+                        )}
+                      </DialogContent>
+                    )}
                   </Dialog>
-                  <Button variant="outline" size="icon" aria-label="Print" title="Print Interview Results">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    aria-label="Print"
+                    title="Print Interview Results"
+                    onClick={() => window.open('/admin/results/print/interview', '_blank')}
+                  >
                     <Printer />
                   </Button>
                 </div>
