@@ -7,7 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AdminNav } from "@/components/admin-nav";
 import { ActiveEventLabel } from "@/components/active-event-label";
-import { Printer, Eye } from "lucide-react";
+import { Eye } from "lucide-react";
 import { RawScoresTable } from "@/components/RawScoresTable";
 
 interface Event {
@@ -87,9 +87,7 @@ export default function AdminScoresPage() {
     setRawDialogOpen(true);
   };
 
-  const handlePrintBlank = (judge: Judge) => {
-    window.open(`/admin/scores/blank?judgeId=${judge.id}`, "_blank");
-  };
+
 
   return (
     <div className="min-h-screen bg-muted flex flex-col items-center py-10 px-2 sm:px-4">
@@ -137,14 +135,7 @@ export default function AdminScoresPage() {
                     >
                       <Eye className="w-4 h-4" />
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => handlePrintBlank(judge)}
-                      title="Print Blank Scoresheet"
-                    >
-                      <Printer className="w-4 h-4" />
-                    </Button>
+
                   </div>
                 </li>
               ))}
@@ -164,57 +155,10 @@ export default function AdminScoresPage() {
           </DialogHeader>
           {selectedJudge && (
             <div className="relative p-8 pt-2 overflow-auto print:p-0 print:pt-0" style={{ maxHeight: '80vh' }}>
-              {/* Print header, table, and footer: always rendered, but only visible in print */}
-              <div id="print-rawscore" className="print:block hidden fixed top-0 left-0 w-full min-h-screen bg-white z-[99999] p-0 m-0">
-                <div className="flex flex-col items-center mb-4 mt-4">
-                  <img src="/file.svg" alt="Institution Logo" width={80} height={80} className="mb-2" />
-                  <h1 className="text-2xl font-bold mb-1">Institution Name</h1>
-                  <h2 className="text-lg font-semibold mb-1">Pageant Raw Scores</h2>
-                  <div className="text-base font-medium">Event: {activeEvent?.name}</div>
-                  <div className="text-base font-medium">Judge: #{selectedJudge.number} {selectedJudge.name}</div>
-                </div>
-                <RawScoresTable judgeId={selectedJudge.id} />
-                <div className="mt-8 text-center text-xs text-muted-foreground">Printed on {new Date().toLocaleString()}</div>
-              </div>
               {/* On screen: normal dialog content */}
-              <div className="print:hidden">
+              <div>
                 <RawScoresTable judgeId={selectedJudge.id} />
-                <div className="flex justify-end mt-4 no-print">
-                  <Button
-                    variant="default"
-                    onClick={() => window.print()}
-                  >
-                    <Printer className="w-4 h-4 mr-2" /> Print / Save as PDF
-                  </Button>
-                </div>
               </div>
-              <style>{`
-                @media print {
-                  html, body {
-                    background: white !important;
-                    padding: 0 !important;
-                    margin: 0 !important;
-                  }
-                  .print-bg-white, .DialogContent, .DialogHeader, .DialogTitle, .Dialog, .dialog-close, .no-print, .print\:hidden, .overflow-auto, .p-8, .pt-2, .relative, [class*="Dialog"] {
-                    display: none !important;
-                  }
-                  #print-rawscore {
-                    display: block !important;
-                    position: fixed !important;
-                    top: 0 !important;
-                    left: 0 !important;
-                    width: 100vw !important;
-                    min-height: 100vh !important;
-                    background: white !important;
-                    z-index: 99999 !important;
-                    margin: 0 !important;
-                    padding: 0 !important;
-                  }
-                  #print-rawscore > div {
-                    margin-top: 1.5rem !important;
-                  }
-                }
-              `}</style>
             </div>
           )}
         </DialogContent>
