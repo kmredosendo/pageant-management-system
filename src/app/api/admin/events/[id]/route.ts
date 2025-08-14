@@ -4,14 +4,14 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { name, date, status } = await req.json();
+  const { name, date, status, institutionName, institutionAddress, venue } = await req.json();
   const { id } = await params;
   if (!name || !date || !id) {
     return NextResponse.json({ error: "Missing fields" }, { status: 400 });
   }
   const event = await prisma.event.update({
     where: { id: Number(id) },
-    data: { name, date: new Date(date), ...(status && { status }) },
+    data: { name, date: new Date(date), institutionName, institutionAddress, venue, ...(status && { status }) },
   });
   return NextResponse.json(event);
 }

@@ -16,6 +16,9 @@ type Event = {
   id: number;
   name: string;
   date: string;
+  institutionName?: string;
+  institutionAddress?: string;
+  venue?: string;
   status: "ACTIVE" | "INACTIVE";
 };
 
@@ -25,12 +28,18 @@ export default function EventsPage() {
   const [open, setOpen] = useState(false);
   const [newEventName, setNewEventName] = useState("");
   const [newEventDate, setNewEventDate] = useState("");
+  const [newInstitutionName, setNewInstitutionName] = useState("");
+  const [newInstitutionAddress, setNewInstitutionAddress] = useState("");
+  const [newVenue, setNewVenue] = useState("");
   const [formError, setFormError] = useState("");
 
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editEvent, setEditEvent] = useState<Event | null>(null);
   const [editEventName, setEditEventName] = useState("");
   const [editEventDate, setEditEventDate] = useState("");
+  const [editInstitutionName, setEditInstitutionName] = useState("");
+  const [editInstitutionAddress, setEditInstitutionAddress] = useState("");
+  const [editVenue, setEditVenue] = useState("");
   const [editFormError, setEditFormError] = useState("");
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -55,12 +64,15 @@ export default function EventsPage() {
     const res = await fetch("/api/admin/events", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: newEventName, date: newEventDate }),
+      body: JSON.stringify({ name: newEventName, date: newEventDate, institutionName: newInstitutionName, institutionAddress: newInstitutionAddress, venue: newVenue }),
     });
     if (res.ok) {
       setOpen(false);
       setNewEventName("");
       setNewEventDate("");
+      setNewInstitutionName("");
+      setNewInstitutionAddress("");
+      setNewVenue("");
       setFormError("");
       toast.success('Event created successfully');
       setRefreshActiveEventLabel(k => k + 1);
@@ -80,6 +92,9 @@ export default function EventsPage() {
     setEditEvent(event);
     setEditEventName(event.name);
     setEditEventDate(event.date.slice(0, 10));
+    setEditInstitutionName(event.institutionName || "");
+    setEditInstitutionAddress(event.institutionAddress || "");
+    setEditVenue(event.venue || "");
     setEditFormError("");
     setEditDialogOpen(true);
   };
@@ -91,7 +106,7 @@ export default function EventsPage() {
     const res = await fetch(`/api/admin/events/${editEvent.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: editEventName, date: editEventDate }),
+      body: JSON.stringify({ name: editEventName, date: editEventDate, institutionName: editInstitutionName, institutionAddress: editInstitutionAddress, venue: editVenue }),
     });
     if (res.ok) {
       setEditDialogOpen(false);
@@ -173,6 +188,27 @@ export default function EventsPage() {
                       value={newEventName}
                       onChange={e => setNewEventName(e.target.value)}
                       required
+                    />
+                  </div>
+                  <div>
+                    <Input
+                      placeholder="Institution Name"
+                      value={newInstitutionName}
+                      onChange={e => setNewInstitutionName(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Input
+                      placeholder="Institution Address"
+                      value={newInstitutionAddress}
+                      onChange={e => setNewInstitutionAddress(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Input
+                      placeholder="Venue"
+                      value={newVenue}
+                      onChange={e => setNewVenue(e.target.value)}
                     />
                   </div>
                   <div>
@@ -269,6 +305,27 @@ export default function EventsPage() {
                     value={editEventName}
                     onChange={e => setEditEventName(e.target.value)}
                     required
+                  />
+                </div>
+                <div>
+                  <Input
+                    placeholder="Institution Name"
+                    value={editInstitutionName}
+                    onChange={e => setEditInstitutionName(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Input
+                    placeholder="Institution Address"
+                    value={editInstitutionAddress}
+                    onChange={e => setEditInstitutionAddress(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Input
+                    placeholder="Venue"
+                    value={editVenue}
+                    onChange={e => setEditVenue(e.target.value)}
                   />
                 </div>
                 <div>

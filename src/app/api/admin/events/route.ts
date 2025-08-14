@@ -4,7 +4,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
-  const { name, date } = await req.json();
+  const { name, date, institutionName, institutionAddress, venue } = await req.json();
   if (!name || !date) {
     return NextResponse.json({ error: "Missing fields" }, { status: 400 });
   }
@@ -12,6 +12,9 @@ export async function POST(req: Request) {
     data: {
       name,
       date: new Date(date),
+      institutionName,
+      institutionAddress,
+      venue,
     },
   });
   return NextResponse.json(event);
