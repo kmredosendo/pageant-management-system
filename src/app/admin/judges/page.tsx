@@ -60,52 +60,21 @@ export default function JudgesPage() {
       });
   };
 
-  // Load active event from localStorage or API
+  // Always fetch active event from API
   useEffect(() => {
-    const loadActiveEvent = async () => {
-      const stored = typeof window !== "undefined" ? localStorage.getItem("activeEvent") : null;
-      let event: Event | null = null;
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (parsed && parsed.id && parsed.name && parsed.date) {
-            event = parsed;
-          }
-        } catch {}
+    async function loadActiveEvent() {
+      const res = await fetch("/api/admin/events/active");
+      const data = await res.json();
+      if (data.length > 0) {
+        setActiveEvent(data[0]);
+        fetchJudges(data[0].id);
+      } else {
+        setActiveEvent(null);
+        setJudges([]);
+        setLoading(false);
       }
-      if (!event) {
-        // fallback to API
-        const res = await fetch("/api/admin/events/active");
-        const data = await res.json();
-        if (data.length > 0) {
-          event = data[0];
-        }
-      }
-      setActiveEvent(event);
-      if (event) fetchJudges(event.id);
-      else setLoading(false);
-    };
+    }
     loadActiveEvent();
-    // Listen for storage changes (active event changed in another tab)
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === "activeEvent") {
-        const stored = e.newValue;
-        let event: Event | null = null;
-        if (stored) {
-          try {
-            const parsed = JSON.parse(stored);
-            if (parsed && parsed.id && parsed.name && parsed.date) {
-              event = parsed;
-            }
-          } catch {}
-        }
-        setActiveEvent(event);
-        if (event) fetchJudges(event.id);
-        else setJudges([]);
-      }
-    };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
   }, []);
 
   const handleAddJudge = async (e: React.FormEvent) => {

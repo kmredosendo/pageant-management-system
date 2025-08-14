@@ -37,49 +37,19 @@ export default function BestInInterviewResult() {
   };
 
   useEffect(() => {
-    const loadActiveEvent = async () => {
-      const stored = typeof window !== "undefined" ? localStorage.getItem("activeEvent") : null;
-      let event: Event | null = null;
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (parsed && parsed.id && parsed.name && parsed.date) {
-            event = parsed;
-          }
-        } catch {}
+    async function loadActiveEvent() {
+      const res = await fetch("/api/admin/events/active");
+      const data = await res.json();
+      if (data.length > 0) {
+        setActiveEvent(data[0]);
+        fetchResult(data[0].id);
+      } else {
+        setActiveEvent(null);
+        setResult(null);
+        setLoading(false);
       }
-      if (!event) {
-        // fallback to API
-        const res = await fetch("/api/admin/events/active");
-        const data = await res.json();
-        if (data.length > 0) {
-          event = data[0];
-        }
-      }
-      setActiveEvent(event);
-      if (event) fetchResult(event.id);
-      else setLoading(false);
-    };
+    }
     loadActiveEvent();
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === "activeEvent") {
-        const stored = e.newValue;
-        let event: Event | null = null;
-        if (stored) {
-          try {
-            const parsed = JSON.parse(stored);
-            if (parsed && parsed.id && parsed.name && parsed.date) {
-              event = parsed;
-            }
-          } catch {}
-        }
-        setActiveEvent(event);
-        if (event) fetchResult(event.id);
-        else setResult(null);
-      }
-    };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
   }, []);
 
   return (

@@ -28,17 +28,25 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     async function fetchStats() {
-      const [eventRes, contestantsRes, judgesRes, criteriaRes] = await Promise.all([
-        fetch("/api/admin/events/active").then(r => r.json()),
-        fetch("/api/admin/contestants").then(r => r.json()),
-        fetch("/api/admin/judges").then(r => r.json()),
-        fetch("/api/admin/criteria").then(r => r.json()),
-      ]);
+      // Get the active event first
+      const eventRes = await fetch("/api/admin/events/active").then(r => r.json());
+      const event = eventRes[0] || null;
+      let contestants = 0, judges = 0, criteria = 0;
+      if (event) {
+        const [contestantsRes, judgesRes, criteriaRes] = await Promise.all([
+          fetch(`/api/admin/contestants?eventId=${event.id}`).then(r => r.json()),
+          fetch(`/api/admin/judges?eventId=${event.id}`).then(r => r.json()),
+          fetch(`/api/admin/criteria?eventId=${event.id}`).then(r => r.json()),
+        ]);
+        contestants = contestantsRes.length;
+        judges = judgesRes.length;
+        criteria = criteriaRes.length;
+      }
       setStats({
-        event: eventRes[0] || null,
-        contestants: contestantsRes.length,
-        judges: judgesRes.length,
-        criteria: criteriaRes.length,
+        event,
+        contestants,
+        judges,
+        criteria,
       });
       setLoading(false);
     }

@@ -68,60 +68,33 @@ export default function CriteriaPage() {
   const [deleteSubId, setDeleteSubId] = useState<number | null>(null);
   const [activeEvent, setActiveEvent] = useState<Event | null>(null);
   useEffect(() => {
-    // Try to get from localStorage first
-    const stored = typeof window !== "undefined" ? localStorage.getItem("activeEvent") : null;
-    let eventId: number | undefined = undefined;
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        if (parsed && parsed.id && parsed.name && parsed.date) {
-          setActiveEvent(parsed);
-          eventId = parsed.id;
-        }
-      } catch {}
-    }
-    // Fallback: fetch from API if not in localStorage
-    if (!stored) {
-      fetch("/api/admin/events/active")
-        .then(res => res.json())
-        .then(data => {
-          if (data.length > 0) {
-            setActiveEvent(data[0]);
-            eventId = data[0].id;
-            fetch(`/api/admin/criteria?eventId=${data[0].id}`)
-              .then(res => res.json())
-              .then(data => {
-                if (Array.isArray(data)) {
-                  setCriterias(data);
-                } else {
-                  setCriterias([]);
-                }
-                setLoading(false);
-              })
-              .catch(() => {
-                setCriterias([]);
-                setLoading(false);
-                toast.error("Failed to load criteria. Please try again.");
-              });
-          }
-        });
-    } else if (eventId) {
-      fetch(`/api/admin/criteria?eventId=${eventId}`)
-        .then(res => res.json())
-        .then(data => {
-          if (Array.isArray(data)) {
-            setCriterias(data);
-          } else {
+    async function loadActiveEvent() {
+      const res = await fetch("/api/admin/events/active");
+      const data = await res.json();
+      if (data.length > 0) {
+        setActiveEvent(data[0]);
+        fetch(`/api/admin/criteria?eventId=${data[0].id}`)
+          .then(res => res.json())
+          .then(data => {
+            if (Array.isArray(data)) {
+              setCriterias(data);
+            } else {
+              setCriterias([]);
+            }
+            setLoading(false);
+          })
+          .catch(() => {
             setCriterias([]);
-          }
-          setLoading(false);
-        })
-        .catch(() => {
-          setCriterias([]);
-          setLoading(false);
-          toast.error("Failed to load criteria. Please try again.");
-        });
+            setLoading(false);
+            toast.error("Failed to load criteria. Please try again.");
+          });
+      } else {
+        setActiveEvent(null);
+        setCriterias([]);
+        setLoading(false);
+      }
     }
+    loadActiveEvent();
   }, []);
 
   const handleAddMainCriteria = async (e: React.FormEvent) => {

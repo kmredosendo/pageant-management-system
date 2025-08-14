@@ -6,34 +6,20 @@ export function ActiveEventLabel({ refresh }: { refresh?: number }) {
   const [event, setEvent] = useState<{ id: number; name: string; date: string } | null>(null);
 
   useEffect(() => {
-    // Try to get from localStorage first
-    const updateFromLocalStorage = () => {
-      const stored = typeof window !== "undefined" ? localStorage.getItem("activeEvent") : null;
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (parsed && parsed.name && parsed.date) {
-            setEvent(parsed);
-            return;
-          }
-        } catch {}
-      }
-      // Fallback: fetch the active event from the API
+    const updateFromAPI = () => {
       fetch("/api/admin/events/active")
         .then(res => res.json())
         .then(events => {
           if (Array.isArray(events) && events.length > 0) {
             setEvent({ id: events[0].id, name: events[0].name, date: events[0].date });
-            localStorage.setItem("activeEvent", JSON.stringify({ id: events[0].id, name: events[0].name, date: events[0].date }));
           } else {
             setEvent(null);
-            localStorage.removeItem("activeEvent");
           }
         });
     };
-    updateFromLocalStorage();
-    window.addEventListener("storage", updateFromLocalStorage);
-    return () => window.removeEventListener("storage", updateFromLocalStorage);
+    updateFromAPI();
+    window.addEventListener("storage", updateFromAPI);
+    return () => window.removeEventListener("storage", updateFromAPI);
   }, [refresh]);
 
   const formattedDate = event?.date

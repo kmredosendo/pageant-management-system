@@ -12,33 +12,17 @@ export default function Home() {
 	const router = useRouter();
 
 	useEffect(() => {
-		// Try to get from localStorage first
-		const stored = typeof window !== "undefined" ? localStorage.getItem("activeEvent") : null;
-		if (stored) {
-			try {
-				const parsed = JSON.parse(stored);
-				if (parsed && parsed.id && parsed.name && parsed.date) {
-					setEvent(parsed);
-				}
-			} catch {}
+		async function loadActiveEvent() {
+			const res = await fetch("/api/admin/events/active");
+			const events = await res.json();
+			if (Array.isArray(events) && events.length > 0) {
+				setEvent(events[0]);
+				const judgesRes = await fetch(`/api/admin/judges?eventId=${events[0].id}`);
+				const judgesData = await judgesRes.json();
+				setJudges(judgesData);
+			}
 		}
-		// Fallback: fetch from API if not in localStorage
-		if (!stored) {
-			fetch("/api/admin/events/active")
-				.then((res) => res.json())
-				.then((events) => {
-					if (Array.isArray(events) && events.length > 0) {
-						setEvent(events[0]);
-						fetch("/api/admin/judges")
-							.then((res) => res.json())
-							.then((data) => setJudges(data));
-					}
-				});
-		} else {
-			fetch("/api/admin/judges")
-				.then((res) => res.json())
-				.then((data) => setJudges(data));
-		}
+		loadActiveEvent();
 	}, []);
 
 	const handleJudgeSelect = (value: string) => {

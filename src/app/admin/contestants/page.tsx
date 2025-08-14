@@ -66,48 +66,18 @@ export default function ContestantsPage() {
       });
   };
 
-  // Load active event from localStorage or API
+  // Remove all localStorage usage and always fetch active event from API
   useEffect(() => {
     const loadActiveEvent = async () => {
-      const stored = typeof window !== "undefined" ? localStorage.getItem("activeEvent") : null;
-      let event: Event | null = null;
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (parsed && parsed.id && parsed.name && parsed.date) {
-            event = parsed;
-          }
-        } catch {}
+      const res = await fetch("/api/admin/events/active");
+      const data = await res.json();
+      if (data.length > 0) {
+        setActiveEvent(data[0]);
+      } else {
+        setActiveEvent(null);
       }
-      if (!event) {
-        // fallback to API
-        const res = await fetch("/api/admin/events/active");
-        const data = await res.json();
-        if (data.length > 0) {
-          event = data[0];
-        }
-      }
-      setActiveEvent(event);
     };
     loadActiveEvent();
-    // Listen for storage changes (active event changed in another tab)
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === "activeEvent") {
-        const stored = e.newValue;
-        let event: Event | null = null;
-        if (stored) {
-          try {
-            const parsed = JSON.parse(stored);
-            if (parsed && parsed.id && parsed.name && parsed.date) {
-              event = parsed;
-            }
-          } catch {}
-        }
-        setActiveEvent(event);
-      }
-    };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
   }, []);
 
   // Fetch contestants whenever activeEvent changes
@@ -118,7 +88,7 @@ export default function ContestantsPage() {
       setContestants([]);
       setLoading(false);
     }
-  }, [activeEvent?.id]);
+  }, [activeEvent]);
 
   const handleAddContestant = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -69,11 +69,6 @@ export default function EventsPage() {
         .then(res => res.json())
         .then(data => {
           setEvents(data);
-          // Set localStorage to the new event if it's the only one or the latest
-          if (Array.isArray(data) && data.length > 0) {
-            const latest = data[data.length - 1];
-            localStorage.setItem("activeEvent", JSON.stringify({ id: latest.id, name: latest.name, date: latest.date }));
-          }
         });
     } else {
       setFormError("Failed to create event");
@@ -108,11 +103,6 @@ export default function EventsPage() {
         .then(res => res.json())
         .then(data => {
           setEvents(data);
-          // If the edited event is the active one, update localStorage
-          const active = JSON.parse(localStorage.getItem("activeEvent") || '{}');
-          if (active && active.id === editEvent.id) {
-            localStorage.setItem("activeEvent", JSON.stringify({ id: editEvent.id, name: editEventName, date: editEventDate }));
-          }
         });
     } else {
       setEditFormError("Failed to update event");
@@ -144,12 +134,6 @@ export default function EventsPage() {
       setDeleteError("");
       toast.success('Event deleted successfully');
       setRefreshActiveEventLabel(k => k + 1);
-      // If the deleted event is the active one, remove from localStorage
-      const active = JSON.parse(localStorage.getItem("activeEvent") || '{}');
-      if (active && active.id === eventToDelete.id) {
-        localStorage.removeItem("activeEvent");
-        setRefreshActiveEventLabel(k => k + 1);
-      }
     } else {
       setDeleteDialogOpen(false);
       setEventToDelete(null);
@@ -258,17 +242,6 @@ export default function EventsPage() {
                               .then(res => res.json())
                               .then(data => {
                                 setEvents(data);
-                                // If activating, set as activeEvent in localStorage
-                                if (checked) {
-                                  localStorage.setItem("activeEvent", JSON.stringify({ id: event.id, name: event.name, date: event.date }));
-                                } else {
-                                  // If deactivating the current active event, remove from localStorage
-                                  const active = JSON.parse(localStorage.getItem("activeEvent") || '{}');
-                                  if (active && active.id === event.id) {
-                                    localStorage.removeItem("activeEvent");
-                                    setRefreshActiveEventLabel(k => k + 1);
-                                  }
-                                }
                               });
                           }}
                         />
