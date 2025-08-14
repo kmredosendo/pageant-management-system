@@ -4,7 +4,18 @@ import { prisma } from "@/lib/prisma";
 // GET: Get all scores for the 'best-in-talent' criteria (sum of all sub-criterias) for the active event, grouped by contestant
 export async function GET() {
   // Find the active event
-  const event = await prisma.event.findFirst({ where: { status: "ACTIVE" }, orderBy: { date: "desc" } });
+  const event = await prisma.event.findFirst({
+    where: { status: "ACTIVE" },
+    orderBy: { date: "desc" },
+    select: {
+      id: true,
+      name: true,
+      date: true,
+      institutionName: true,
+      institutionAddress: true,
+      venue: true,
+    },
+  });
   if (!event) return NextResponse.json({ error: "No active event" }, { status: 400 });
 
   // Find the 'best-in-talent' criteria for this event
@@ -55,7 +66,7 @@ export async function GET() {
   }
 
   return NextResponse.json({
-    event: { id: event.id, name: event.name, date: event.date },
+    event,
     criteria: { id: talentCriteria.id, name: talentCriteria.name, identifier: talentCriteria.identifier },
     contestants: Object.values(grouped),
   });

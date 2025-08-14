@@ -1,7 +1,5 @@
 "use client";
 
-
-
 import { RawScoresTable } from "@/components/RawScoresTable";
 import { PrintHeader } from "@/components/print-header";
 import { PrintFooter } from "@/components/print-footer";

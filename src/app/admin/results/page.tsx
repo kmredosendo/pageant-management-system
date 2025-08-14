@@ -9,6 +9,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Medal, Star, Mic, Users, ListOrdered, User, Eye, Printer } from "lucide-react";
+import { TalentRankTable } from "@/components/TalentRankTable";
 import { AdminNav } from "@/components/admin-nav";
 import { ActiveEventLabel } from "@/components/active-event-label";
 
@@ -82,123 +83,20 @@ export default function AdminResultsPage() {
                         {talentLoading ? (
                           <div className="py-4 text-center text-muted-foreground">Loading...</div>
                         ) : talentData && talentData.contestants.length > 0 ? (
-                          <div className="overflow-x-auto">
-                            {/* ...existing table code... */}
-                            <table className="min-w-full border text-sm">
-                              <thead>
-                                <tr>
-                                  <th className="border px-2 py-1" rowSpan={2}>Contestant #</th>
-                                  {Array.from({ length: 5 }).map((_, i) => (
-                                    <th className="border px-2 py-1 text-center" colSpan={2} key={`judge-header-${i}`}>{`Judge ${i + 1}`}</th>
-                                  ))}
-                                  <th className="border px-2 py-1" rowSpan={2}>Total Rank</th>
-                                  <th className="border px-2 py-1" rowSpan={2}>Final Rank</th>
-                                </tr>
-                                <tr>
-                                  {Array.from({ length: 5 }).flatMap((_, i) => [
-                                    <th className="border px-2 py-1 text-center" key={`score-header-${i}`}>Score</th>,
-                                    <th className="border px-2 py-1 text-center" key={`rank-header-${i}`}>Rank</th>
-                                  ])}
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {/* Table body rendering, fixed for JSX and key issues */}
-                                {(() => {
-                                  const contestants = talentData.contestants.map(c => ({
-                                    ...c,
-                                    total: c.scores.reduce((sum, s) => sum + s.value, 0),
-                                    number: (() => {
-                                      const match = c.contestantName.match(/^#?(\d+)/);
-                                      return match ? Number(match[1]) : 0;
-                                    })()
-                                  })).sort((a, b) => a.number - b.number);
-
-                                  const judgeIds: number[] = [];
-                                  for (const c of contestants) {
-                                    for (const s of c.scores) {
-                                      if (!judgeIds.includes(s.judgeId)) judgeIds.push(s.judgeId);
-                                      if (judgeIds.length === 5) break;
-                                    }
-                                    if (judgeIds.length === 5) break;
-                                  }
-                                  const judgeScores: Record<number, {contestantId: number, value: number}[]> = {};
-                                  for (const judgeId of judgeIds) {
-                                    judgeScores[judgeId] = contestants.map(c => {
-                                      const found = c.scores.find(s => s.judgeId === judgeId);
-                                      return { contestantId: c.contestantId, value: found ? found.value : 0 };
-                                    });
-                                  }
-                                  const judgeRanks: Record<number, Record<number, number>> = {};
-                                  for (const judgeId of judgeIds) {
-                                    const arr = [...judgeScores[judgeId]];
-                                    arr.sort((a, b) => b.value - a.value);
-                                    judgeRanks[judgeId] = {};
-                                    let i = 0;
-                                    while (i < arr.length) {
-                                      const tieValue = arr[i].value;
-                                      const tieStart = i;
-                                      let tieEnd = i;
-                                      while (tieEnd + 1 < arr.length && arr[tieEnd + 1].value === tieValue) {
-                                        tieEnd++;
-                                      }
-                                      const avgRank = (tieStart + 1 + tieEnd + 1) / 2;
-                                      for (let j = tieStart; j <= tieEnd; j++) {
-                                        judgeRanks[judgeId][arr[j].contestantId] = avgRank;
-                                      }
-                                      i = tieEnd + 1;
-                                    }
-                                  }
-                                  const totalRanks = contestants.map(c => {
-                                    let total = 0;
-                                    for (let i = 0; i < judgeIds.length; i++) {
-                                      total += judgeRanks[judgeIds[i]][c.contestantId] || 0;
-                                    }
-                                    return { contestantId: c.contestantId, total };
-                                  });
-                                  const sortedTotalRanks = [...totalRanks].sort((a, b) => a.total - b.total);
-                                  const finalRankMap: Record<number, number> = {};
-                                  let prevTotal = null;
-                                  let prevRank = 1;
-                                  for (let i = 0; i < sortedTotalRanks.length; i++) {
-                                    if (prevTotal !== null && sortedTotalRanks[i].total === prevTotal) {
-                                      finalRankMap[sortedTotalRanks[i].contestantId] = prevRank;
-                                    } else {
-                                      finalRankMap[sortedTotalRanks[i].contestantId] = i + 1;
-                                      prevRank = i + 1;
-                                    }
-                                    prevTotal = sortedTotalRanks[i].total;
-                                  }
-                                  return contestants.map((c, idx) => (
-                                    <tr key={c.contestantId} className={finalRankMap[c.contestantId] === 1 ? "bg-yellow-100 font-bold" : ""}>
-                                      <td className="border px-2 py-1">{c.number || idx + 1}</td>
-                                      {judgeIds.map((judgeId, jIdx) => (
-                                        <React.Fragment key={`judge-${jIdx}`}>
-                                          <td className="border px-2 py-1 text-center">{(c.scores.find(s => s.judgeId === judgeId)?.value ?? 0)}</td>
-                                          <td className="border px-2 py-1 text-center">{judgeRanks[judgeId][c.contestantId]?.toFixed(1) ?? ''}</td>
-                                        </React.Fragment>
-                                      ))}
-                                      {/* Fill empty judges if less than 5 */}
-                                      {Array.from({ length: 5 - judgeIds.length }).map((_, i) => (
-                                        <React.Fragment key={`empty-${i}`}>
-                                          <td className="border px-2 py-1 text-center"></td>
-                                          <td className="border px-2 py-1 text-center"></td>
-                                        </React.Fragment>
-                                      ))}
-                                      <td className="border px-2 py-1 text-center font-semibold">{totalRanks.find(t => t.contestantId === c.contestantId)?.total}</td>
-                                      <td className="border px-2 py-1 text-center font-bold">{finalRankMap[c.contestantId]}</td>
-                                    </tr>
-                                  ));
-                                })()}
-                              </tbody>
-                            </table>
-                          </div>
+                          <TalentRankTable contestants={talentData.contestants} />
                         ) : (
                           <div className="py-4 text-center text-muted-foreground">No scores found.</div>
                         )}
                       </DialogContent>
                     )}
                   </Dialog>
-                  <Button variant="outline" size="icon" aria-label="Print" title="Print Talent Results">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    aria-label="Print"
+                    title="Print Talent Results"
+                    onClick={() => window.open('/admin/results/print', '_blank')}
+                  >
                     <Printer />
                   </Button>
                 </div>
