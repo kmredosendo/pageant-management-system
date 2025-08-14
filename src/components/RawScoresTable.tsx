@@ -35,7 +35,7 @@ export function RawScoresTable({ judgeId, tableClassName }: { judgeId: number, t
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     setLoading(true);
-    fetch("/api/results/raw-scores")
+    fetch("/api/raw-scores")
       .then((res) => res.json())
       .then((data) => {
         setRaw(data.scores.filter((s: RawScore) => s.judgeId === judgeId));
