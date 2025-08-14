@@ -19,16 +19,7 @@ export default function AdminResultsPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-center gap-4">
-          <Link href="/results/best-in-talent" className="w-full">
-            <div className="bg-background rounded-md p-4 shadow hover:bg-accent transition flex flex-col items-center">
-              <span className="font-semibold text-lg">Best in Talent</span>
-            </div>
-          </Link>
-          <Link href="/results/best-in-interview" className="w-full">
-            <div className="bg-background rounded-md p-4 shadow hover:bg-accent transition flex flex-col items-center">
-              <span className="font-semibold text-lg">Best in Interview</span>
-            </div>
-          </Link>
+          {/* Results content cleaned. Add new result categories here as needed. */}
         </CardContent>
       </Card>
     </div>
