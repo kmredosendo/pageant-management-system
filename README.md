@@ -139,9 +139,9 @@ MIT
 ## Donations
 If you find this project helpful, consider supporting its development:
 
-- <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/githubsponsors.svg" alt="GitHub Sponsors" width="20" style="vertical-align:middle;"/> [GitHub Sponsors](https://github.com/sponsors/kmredosendo)
-- <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/buymeacoffee.svg" alt="Buy Me a Coffee" width="20" style="vertical-align:middle;"/> [Buy Me a Coffee](https://www.buymeacoffee.com/kmredosendo)
-- <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/kofi.svg" alt="Ko-fi" width="20" style="vertical-align:middle;"/> [Ko-fi](https://ko-fi.com/kmredosendo)
-- <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/paypal.svg" alt="PayPal" width="20" style="vertical-align:middle;"/> [PayPal](https://www.paypal.me/kmredosendo)
+- [GitHub Sponsors](https://github.com/sponsors/kmredosendo)
+- [Buy Me a Coffee](https://www.buymeacoffee.com/kmredosendo)
+- [Ko-fi](https://ko-fi.com/kmredosendo)
+- [PayPal](https://www.paypal.me/kmredosendo)
 
 Thank you for your support!
