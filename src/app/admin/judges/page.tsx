@@ -216,9 +216,9 @@ export default function JudgesPage() {
           ) : judges.length === 0 ? (
             <div className="text-center text-muted-foreground py-10">No judges found.</div>
           ) : (
-            <ul className="space-y-4">
+            <ul className="space-y-2">
               {judges.map(judge => (
-                <li key={judge.id} className="flex items-center justify-between bg-background rounded-md p-4 shadow-sm">
+                <li key={judge.id} className="flex items-center justify-between bg-background rounded-md border p-4 shadow-sm">
                   <div>
                     <div className="font-semibold">#{judge.number} {judge.name}{judge.number === 1 && " (Chief Judge)"}</div>
                   </div>

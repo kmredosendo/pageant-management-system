@@ -291,11 +291,11 @@ export default function CriteriaPage() {
           ) : criterias.length === 0 ? (
             <div className="text-center text-muted-foreground py-10">No criteria found.</div>
           ) : (
-            <ul className="space-y-4">
+            <ul className="space-y-2">
               {criterias.map(main => {
                 const totalWeight = main.subCriterias.reduce((sum, sub) => sum + (sub.weight || 0), 0);
                 return (
-                  <li key={main.id} className="bg-background rounded-md p-4 shadow-sm">
+                  <li key={main.id} className="bg-background rounded-md border p-4 shadow-sm">
                     <div className="font-semibold flex items-center justify-between">
                       <span>{main.name} {totalWeight > 0 && <span className="text-xs text-muted-foreground">({totalWeight}%)</span>} {main.identifier && <span className="text-xs text-muted-foreground">({main.identifier})</span>}</span>
                       <div className="flex gap-2">

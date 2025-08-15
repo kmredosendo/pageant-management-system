@@ -242,9 +242,9 @@ export default function ContestantsPage() {
           ) : contestants.length === 0 ? (
             <div className="text-center text-muted-foreground py-10">No contestants found.</div>
           ) : (
-            <ul className="space-y-4">
+            <ul className="space-y-2">
               {contestants.map(contestant => (
-                <li key={contestant.id} className="flex items-center justify-between bg-background rounded-md p-4 shadow-sm">
+                <li key={contestant.id} className="flex items-center justify-between bg-background rounded-md border p-4 shadow-sm">
                   <div>
                     <div className="font-semibold">#{contestant.number} {contestant.name}</div>
                     {contestant.sex && <div className="text-xs text-muted-foreground">Sex: {contestant.sex}</div>}

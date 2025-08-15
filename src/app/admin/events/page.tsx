@@ -237,11 +237,11 @@ export default function EventsPage() {
           ) : events.length === 0 ? (
             <div className="text-center text-muted-foreground py-10">No events found.</div>
           ) : (
-            <ul className="space-y-4">
+            <ul className="space-y-2">
               {[...events]
                 .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                 .map(event => (
-                  <li key={event.id} className="flex items-center justify-between bg-background rounded-md p-4 shadow-sm">
+                  <li key={event.id} className="flex items-center justify-between bg-background rounded-md border p-4 shadow-sm">
                     <div>
                       <div className="font-semibold">{event.name}</div>
                       <div className="text-xs text-muted-foreground">{new Date(event.date).toLocaleDateString()}</div>

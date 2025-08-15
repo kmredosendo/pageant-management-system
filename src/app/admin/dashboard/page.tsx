@@ -78,23 +78,23 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               )}
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <a href="/admin/contestants" className="flex flex-col items-center p-4 bg-background rounded-lg border hover:bg-primary/5 transition-colors cursor-pointer">
+              <div className="grid grid-cols-2 gap-2 mb-6">
+                <a href="/admin/contestants" className="flex flex-col items-center p-4 bg-background rounded-lg border hover:bg-primary/5 transition-colors cursor-pointer shadow-sm">
                   <Users className="w-6 h-6 mb-1 text-primary" />
                   <div className="text-2xl font-bold">{stats.contestants}</div>
                   <div className="text-xs text-muted-foreground">Contestants</div>
                 </a>
-                <a href="/admin/judges" className="flex flex-col items-center p-4 bg-background rounded-lg border hover:bg-primary/5 transition-colors cursor-pointer">
+                <a href="/admin/judges" className="flex flex-col items-center p-4 bg-background rounded-lg border hover:bg-primary/5 transition-colors cursor-pointer shadow-sm">
                   <UserCheck className="w-6 h-6 mb-1 text-primary" />
                   <div className="text-2xl font-bold">{stats.judges}</div>
                   <div className="text-xs text-muted-foreground">Judges</div>
                 </a>
-                <a href="/admin/criteria" className="flex flex-col items-center p-4 bg-background rounded-lg border hover:bg-primary/5 transition-colors cursor-pointer">
+                <a href="/admin/criteria" className="flex flex-col items-center p-4 bg-background rounded-lg border hover:bg-primary/5 transition-colors cursor-pointer shadow-sm">
                   <ListChecks className="w-6 h-6 mb-1 text-primary" />
                   <div className="text-2xl font-bold">{stats.criteria}</div>
                   <div className="text-xs text-muted-foreground">Criteria</div>
                 </a>
-                <a href="/admin/events" className="flex flex-col items-center p-4 bg-background rounded-lg border hover:bg-primary/5 transition-colors cursor-pointer">
+                <a href="/admin/events" className="flex flex-col items-center p-4 bg-background rounded-lg border hover:bg-primary/5 transition-colors cursor-pointer shadow-sm">
                   <Trophy className="w-6 h-6 mb-1 text-primary" />
                   <div className="text-2xl font-bold">{stats.event ? 1 : 0}</div>
                   <div className="text-xs text-muted-foreground">Active Events</div>
