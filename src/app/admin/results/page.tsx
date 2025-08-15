@@ -224,9 +224,24 @@ export default function AdminResultsPage() {
                         <DialogTitle>Rank per Judge</DialogTitle>
                       </div>
                       <RankPerJudgeTable />
+                      <div className="flex justify-end mt-4">
+                        <Button
+                          onClick={() => window.open('/admin/results/print/rank-per-judge', '_blank')}
+                          aria-label="Print"
+                          title="Print Rank per Judge"
+                        >
+                          <Printer className="mr-2" /> Print
+                        </Button>
+                      </div>
                     </DialogContent>
                   </Dialog>
-                  <Button variant="outline" size="icon" aria-label="Print" title="Print Rank per Judge">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    aria-label="Print"
+                    title="Print Rank per Judge"
+                    onClick={() => window.open('/admin/results/print/rank-per-judge', '_blank')}
+                  >
                     <Printer />
                   </Button>
                 </div>

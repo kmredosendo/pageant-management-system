@@ -33,7 +33,14 @@ export async function GET() {
   }));
 
   return NextResponse.json({
-    event: { id: event.id, name: event.name, date: event.date },
+    event: {
+      id: event.id,
+      name: event.name,
+      date: event.date,
+      institutionName: event.institutionName,
+      institutionAddress: event.institutionAddress,
+      venue: event.venue,
+    },
     contestants,
     judges,
     criteria,
