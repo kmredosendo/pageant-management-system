@@ -112,7 +112,19 @@ export default function AdminResultsPage() {
                         {talentLoading ? (
                           <div className="py-4 text-center text-muted-foreground">Loading...</div>
                         ) : talentData && talentData.contestants.length > 0 ? (
-                          <CategoryRankTable contestants={talentData.contestants} />
+                          <>
+                            <CategoryRankTable contestants={talentData.contestants} />
+                            <div className="flex justify-end mt-4">
+                              <Button
+                                
+                                onClick={() => window.open('/admin/results/print/talent', '_blank')}
+                                aria-label="Print"
+                                title="Print Talent Results"
+                              >
+                                <Printer className="mr-2" /> Print
+                              </Button>
+                            </div>
+                          </>
                         ) : (
                           <div className="py-4 text-center text-muted-foreground">No scores found.</div>
                         )}
@@ -157,7 +169,19 @@ export default function AdminResultsPage() {
                         {interviewLoading ? (
                           <div className="py-4 text-center text-muted-foreground">Loading...</div>
                         ) : interviewData && interviewData.contestants.length > 0 ? (
-                          <CategoryRankTable contestants={interviewData.contestants} />
+                          <>
+                            <CategoryRankTable contestants={interviewData.contestants} />
+                            <div className="flex justify-end mt-4">
+                              <Button
+                                
+                                onClick={() => window.open('/admin/results/print/interview', '_blank')}
+                                aria-label="Print"
+                                title="Print Interview Results"
+                              >
+                                <Printer className="mr-2" /> Print
+                              </Button>
+                            </div>
+                          </>
                         ) : (
                           <div className="py-4 text-center text-muted-foreground">No scores found.</div>
                         )}
