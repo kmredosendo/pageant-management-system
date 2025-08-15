@@ -157,7 +157,7 @@ function ContestantBreakdownDetail({ contestant, judges, criteria, scores }: {
             {mainCriteria.map((c) => (
               <th key={c.id} className="border px-2 py-1">{c.name}</th>
             ))}
-            <th className="border px-2 py-1">Total Score</th>
+            <th className="border px-2 py-1">Total</th>
             <th className="border px-2 py-1">Rank</th>
           </tr>
         </thead>
@@ -182,11 +182,36 @@ function ContestantBreakdownDetail({ contestant, judges, criteria, scores }: {
             );
           })}
         </tbody>
+        {/* Total Score and Total Rank Row */}
         <tfoot>
           <tr>
-            <td className="border px-2 py-1 font-bold text-right" colSpan={mainCriteria.length + 2}>Total Rank</td>
-            <td className="border px-2 py-1 text-center font-bold">
-              {judges.reduce((sum, j) => sum + (typeof judgeRanks[j.id]?.[contestant.id] === 'number' ? judgeRanks[j.id][contestant.id] : 0), 0)}
+            <td className="border px-2 py-1 font-bold text-right" colSpan={1 + mainCriteria.length}>Total Score</td>
+            <td className="border px-2 py-1 text-center font-bold" colSpan={2}>
+              {/* Sum all scores for this contestant across all judges and all main criteria */}
+              {(() => {
+                let total = 0;
+                judges.forEach(j => {
+                  mainCriteria.forEach(mc => {
+                    const subIds = mainToSub[mc.id];
+                    total += scores.filter(s => s.judgeId === j.id && s.contestantId === contestant.id && subIds.includes(s.criteriaId)).reduce((sum, s) => sum + s.value, 0);
+                  });
+                });
+                return total.toFixed(2);
+              })()}
+            </td>
+          </tr>
+          <tr>
+            <td className="border px-2 py-1 font-bold text-right" colSpan={1 + mainCriteria.length}>Total Rank</td>
+            <td className="border px-2 py-1 text-center font-bold" colSpan={2}>
+              {/* Sum all judge ranks for this contestant */}
+              {(() => {
+                let totalRank = 0;
+                judges.forEach(j => {
+                  const rank = judgeRanks[j.id]?.[contestant.id];
+                  if (typeof rank === 'number') totalRank += rank;
+                });
+                return totalRank;
+              })()}
             </td>
           </tr>
         </tfoot>
