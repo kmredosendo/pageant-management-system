@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Medal, Star, Mic, Users, ListOrdered, User, Eye, Printer } from "lucide-react";
 import { CategoryRankTable } from "@/components/CategoryRankTable";
+import { RankPerJudgeTable } from "@/components/RankPerJudgeTable";
 import { AdminNav } from "@/components/admin-nav";
 import { ActiveEventLabel } from "@/components/active-event-label";
 
@@ -214,12 +215,15 @@ export default function AdminResultsPage() {
                         <Eye />
                       </Button>
                     </DialogTrigger>
-                    <DialogContent>
+                    <DialogContent
+                      className="max-w-7xl w-[75vw]"
+                      style={{ maxWidth: '75vw', width: '75vw' }}
+                    >
                       <div className="flex items-center gap-2 mb-2">
                         <Users className="w-5 h-5 text-green-500" />
                         <DialogTitle>Rank per Judge</DialogTitle>
                       </div>
-                      {/* Dialog content for Rank per Judge goes here */}
+                      <RankPerJudgeTable />
                     </DialogContent>
                   </Dialog>
                   <Button variant="outline" size="icon" aria-label="Print" title="Print Rank per Judge">
