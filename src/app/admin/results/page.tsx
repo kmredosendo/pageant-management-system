@@ -13,6 +13,7 @@ import { CategoryRankTable } from "@/components/CategoryRankTable";
 import { RankPerJudgeTable } from "@/components/RankPerJudgeTable";
 import { AdminNav } from "@/components/admin-nav";
 import { ActiveEventLabel } from "@/components/active-event-label";
+import { FinalRankTable } from "@/components/FinalRankTable";
 
 export default function AdminResultsPage() {
   // State for Best in Talent dialog
@@ -269,10 +270,25 @@ export default function AdminResultsPage() {
                         <ListOrdered className="w-5 h-5 text-purple-500" />
                         <DialogTitle>Final Rank</DialogTitle>
                       </div>
-                      {/* Dialog content for Final Rank goes here */}
+                      <FinalRankTable />
+                      <div className="flex justify-end mt-4">
+                        <Button
+                          onClick={() => window.open('/admin/results/print/final-rank', '_blank')}
+                          aria-label="Print"
+                          title="Print Final Rank"
+                        >
+                          <Printer className="mr-2" /> Print
+                        </Button>
+                      </div>
                     </DialogContent>
                   </Dialog>
-                  <Button variant="outline" size="icon" aria-label="Print" title="Print Final Rank">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    aria-label="Print"
+                    title="Print Final Rank"
+                    onClick={() => window.open('/admin/results/print/final-rank', '_blank')}
+                  >
                     <Printer />
                   </Button>
                 </div>
