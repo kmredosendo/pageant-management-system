@@ -27,7 +27,7 @@ export const FinalRankTable: React.FC = () => {
   const [scores, setScores] = useState<RawScore[]>([]);
   const [judges, setJudges] = useState<Judge[]>([]);
   const [contestants, setContestants] = useState<Contestant[]>([]);
-  const [criteria, setCriteria] = useState<any[]>([]);
+  const [criteria, setCriteria] = useState<{ id: number; parentId?: number | null }[]>([]);
 
   useEffect(() => {
     fetch("/api/raw-scores")
@@ -36,12 +36,12 @@ export const FinalRankTable: React.FC = () => {
         setScores(data.scores);
         setJudges(
           data.judges
-            .map((j: any) => ({ id: j.id, name: j.name, number: Number(j.number) }))
+            .map((j: { id: number, name: string, number: number }) => ({ id: j.id, name: j.name, number: Number(j.number) }))
             .sort((a: Judge, b: Judge) => a.number - b.number)
         );
         setContestants(
           data.contestants
-            .map((c: any) => ({ id: c.id, name: c.name, number: c.number }))
+            .map((c: { id: number, name: string, number: number }) => ({ id: c.id, name: c.name, number: c.number }))
         );
         setCriteria(data.criteria);
         setLoading(false);

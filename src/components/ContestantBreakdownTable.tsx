@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Dialog, DialogTrigger, DialogContent, DialogTitle } from "@/components/ui/dialog";
+// ...existing code...
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { User } from "lucide-react";
 
 interface Judge {
   id: number;
@@ -41,10 +40,10 @@ export function ContestantBreakdownTable() {
     fetch("/api/raw-scores")
       .then((res) => res.json())
       .then((data) => {
-        setContestants(data.contestants.map((c: any) => ({ id: c.id, name: c.name, number: c.number })));
-        setJudges(data.judges.map((j: any) => ({ id: j.id, name: j.name, number: Number(j.number) })));
-        setCriteria(data.criteria);
-        setScores(data.scores);
+  setContestants(data.contestants.map((c: { id: number, name: string, number: number }) => ({ id: c.id, name: c.name, number: c.number })));
+  setJudges(data.judges.map((j: { id: number, name: string, number: number }) => ({ id: j.id, name: j.name, number: Number(j.number) })));
+  setCriteria(data.criteria);
+  setScores(data.scores);
         setLoading(false);
       });
   }, []);

@@ -1,9 +1,6 @@
 import React from "react";
 
-interface Judge {
-  judgeId: number;
-  judgeName: string;
-}
+// ...existing code...
 
 interface Contestant {
   contestantId: number;

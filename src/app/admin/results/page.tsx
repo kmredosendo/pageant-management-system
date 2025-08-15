@@ -1,9 +1,9 @@
-
 "use client";
+import { ContestantBreakdownTable } from "@/components/ContestantBreakdownTable";
 import React from "react";
 
 
-import Link from "next/link";
+// import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -43,7 +43,7 @@ export default function AdminResultsPage() {
       setTalentData(null);
       setTalentLoading(false);
     }
-  }, [talentOpen]);
+    }, [talentOpen, talentData, talentLoading]);
 
   // State for Best in Interview dialog
   const [interviewOpen, setInterviewOpen] = useState(false);
@@ -72,7 +72,7 @@ export default function AdminResultsPage() {
       setInterviewData(null);
       setInterviewLoading(false);
     }
-  }, [interviewOpen]);
+    }, [interviewOpen, interviewData, interviewLoading]);
 
   return (
     <div className="min-h-screen bg-muted flex flex-col items-center py-10 px-2 sm:px-4">
@@ -320,7 +320,7 @@ export default function AdminResultsPage() {
                       <React.Suspense fallback={<div className="py-8 text-center">Loading...</div>}>
                         {typeof window !== 'undefined' && (
                           <>
-                            {require("@/components/ContestantBreakdownTable").ContestantBreakdownTable()}
+                            <ContestantBreakdownTable />
                           </>
                         )}
                       </React.Suspense>

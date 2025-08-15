@@ -46,12 +46,12 @@ export const RankPerJudgeTable: React.FC<RankPerJudgeTableProps> = ({ className 
         setScores(data.scores);
         setJudges(
           data.judges
-            .map((j: any) => ({ id: j.id, name: j.name, number: Number(j.number) }))
+            .map((j: { id: number, name: string, number: number }) => ({ id: j.id, name: j.name, number: Number(j.number) }))
             .sort((a: Judge, b: Judge) => a.number - b.number)
         );
         setContestants(
           data.contestants
-            .map((c: any) => ({ id: c.id, name: c.name, number: c.number }))
+            .map((c: { id: number, name: string, number: number }) => ({ id: c.id, name: c.name, number: c.number }))
         );
         setCriteria(data.criteria);
         setLoading(false);

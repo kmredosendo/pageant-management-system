@@ -16,8 +16,8 @@ export default async function PrintInterviewResultsPage() {
   }
   // Collect all unique judges from the contestants' scores
   const judgeMap = new Map();
-  data.contestants.forEach((c: any) => {
-    c.scores.forEach((s: any) => {
+  data.contestants.forEach((c: { scores: { judgeId: number, judgeName: string }[] }) => {
+    c.scores.forEach((s) => {
       if (!judgeMap.has(s.judgeId)) {
         judgeMap.set(s.judgeId, s.judgeName);
       }
