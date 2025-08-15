@@ -117,7 +117,7 @@ export default function AdminResultsPage() {
                             <CategoryRankTable contestants={talentData.contestants} />
                             <div className="flex justify-end mt-4">
                               <Button
-                                
+
                                 onClick={() => window.open('/admin/results/print/talent', '_blank')}
                                 aria-label="Print"
                                 title="Print Talent Results"
@@ -174,7 +174,7 @@ export default function AdminResultsPage() {
                             <CategoryRankTable contestants={interviewData.contestants} />
                             <div className="flex justify-end mt-4">
                               <Button
-                                
+
                                 onClick={() => window.open('/admin/results/print/interview', '_blank')}
                                 aria-label="Print"
                                 title="Print Interview Results"
@@ -261,7 +261,10 @@ export default function AdminResultsPage() {
                         <Eye />
                       </Button>
                     </DialogTrigger>
-                    <DialogContent>
+                    <DialogContent
+                      className="max-w-7xl w-[75vw]"
+                      style={{ maxWidth: '75vw', width: '75vw' }}
+                    >
                       <div className="flex items-center gap-2 mb-2">
                         <ListOrdered className="w-5 h-5 text-purple-500" />
                         <DialogTitle>Final Rank</DialogTitle>
@@ -289,7 +292,10 @@ export default function AdminResultsPage() {
                         <Eye />
                       </Button>
                     </DialogTrigger>
-                    <DialogContent>
+                    <DialogContent
+                      className="max-w-7xl w-[75vw]"
+                      style={{ maxWidth: '75vw', width: '75vw' }}
+                    >
                       <div className="flex items-center gap-2 mb-2">
                         <User className="w-5 h-5 text-pink-500" />
                         <DialogTitle>Contestant Rank</DialogTitle>

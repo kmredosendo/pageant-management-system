@@ -121,10 +121,20 @@
   }
 }
 
-/* Print-specific highlight for winner row */
+/* Print-specific highlight for winner rows */
 @media print {
   .bg-yellow-100 {
     background-color: #fef9c3 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .bg-gray-200 {
+    background-color: #e5e7eb !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .bg-orange-100 {
+    background-color: #ffedd5 !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
