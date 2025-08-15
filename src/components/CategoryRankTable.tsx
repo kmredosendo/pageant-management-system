@@ -43,24 +43,23 @@ export function CategoryRankTable({ contestants }: CategoryRankTableProps) {
       return { contestantId: c.contestantId, value: found ? found.value : 0 };
     });
   }
-  // For each judge, compute RANK.AVG (average rank for ties)
+  // For each judge, compute dense ranking (ties share the same rank, next rank increments by 1)
   const judgeRanks: Record<number, Record<number, number>> = {};
   for (const judgeId of judgeIds) {
     const arr = [...judgeScores[judgeId]];
     arr.sort((a, b) => b.value - a.value);
     judgeRanks[judgeId] = {};
-    let i = 0;
-    while (i < arr.length) {
+    let rank = 1;
+    for (let i = 0; i < arr.length; ) {
       const tieValue = arr[i].value;
-      const tieStart = i;
       let tieEnd = i;
       while (tieEnd + 1 < arr.length && arr[tieEnd + 1].value === tieValue) {
         tieEnd++;
       }
-      const avgRank = (tieStart + 1 + tieEnd + 1) / 2;
-      for (let j = tieStart; j <= tieEnd; j++) {
-        judgeRanks[judgeId][arr[j].contestantId] = avgRank;
+      for (let j = i; j <= tieEnd; j++) {
+        judgeRanks[judgeId][arr[j].contestantId] = rank;
       }
+      rank += (tieEnd - i + 1);
       i = tieEnd + 1;
     }
   }
@@ -113,7 +112,7 @@ export function CategoryRankTable({ contestants }: CategoryRankTableProps) {
               {judgeIds.map((judgeId, jIdx) => (
                 <React.Fragment key={`judge-${jIdx}`}>
                   <td className="border px-2 py-1 text-center">{(c.scores.find(s => s.judgeId === judgeId)?.value ?? 0)}</td>
-                  <td className="border px-2 py-1 text-center">{judgeRanks[judgeId][c.contestantId]?.toFixed(1) ?? ''}</td>
+                  <td className="border px-2 py-1 text-center">{judgeRanks[judgeId][c.contestantId] ?? ''}</td>
                 </React.Fragment>
               ))}
               {/* Fill empty judges if less than 5 */}
