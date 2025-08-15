@@ -317,11 +317,15 @@ export default function AdminResultsPage() {
                         <DialogTitle>Contestant Rank</DialogTitle>
                       </div>
                       {/* Dialog content for Contestant Rank goes here */}
+                      <React.Suspense fallback={<div className="py-8 text-center">Loading...</div>}>
+                        {typeof window !== 'undefined' && (
+                          <>
+                            {require("@/components/ContestantBreakdownTable").ContestantBreakdownTable()}
+                          </>
+                        )}
+                      </React.Suspense>
                     </DialogContent>
                   </Dialog>
-                  <Button variant="outline" size="icon" aria-label="Print" title="Print Contestant Rank">
-                    <Printer />
-                  </Button>
                 </div>
               </div>
             </Card>
