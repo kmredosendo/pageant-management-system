@@ -18,8 +18,7 @@
     "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "html2canvas": "^1.4.1",
-    "jspdf": "^3.0.1",
+    
     "lucide-react": "^0.514.0",
     "mysql2": "^3.14.1",
     "next": "15.3.3",
@@ -30,8 +29,7 @@
     "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3",
-    "@tailwindcss/postcss": "^4",
+    
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -39,7 +37,7 @@
     "eslint-config-next": "15.3.3",
     "prisma": "^6.14.0",
     "tailwindcss": "^4",
-    "tw-animate-css": "^1.3.4",
+    
     "typescript": "^5"
   }
 }
